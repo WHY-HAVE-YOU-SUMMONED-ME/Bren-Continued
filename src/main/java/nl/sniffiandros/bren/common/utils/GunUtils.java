@@ -91,37 +91,42 @@ public class GunUtils {
                 if (user.getWorld() instanceof ServerWorld serverWorld) {
                     Vec3d airRingPos = front.multiply(3);
                     for (ServerPlayerEntity p : serverWorld.getPlayers()) {
-                        serverWorld.spawnParticles(p, ParticleReg.AIR_RING_PARTICLE, false, airRingPos.x, airRingPos.y, airRingPos.z, 1, 0, 0, 0, 0);
+                        serverWorld.spawnParticles(p, ParticleReg.AIR_RING_PARTICLE, false, airRingPos.x, airRingPos.y, airRingPos.z, 0, 0, 0, 1, 0);
                     }
                 }
 
                 HitResult hit = user.raycast(512f, 1.0f, false);
-                if (hit instanceof EntityHitResult entityHit) {
-                    if (entityHit.getEntity() instanceof LivingEntity livingEntity) {
-                        livingEntity.timeUntilRegen = 0;
-                        DamageSource damageSource = DamageTypeReg.shot(world, user, user);
-                        livingEntity.damage(damageSource, (float)user.getAttributeValue(AttributeReg.RANGED_DAMAGE));
-                    }
-                } else if (hit instanceof BlockHitResult blockHit) {
-                    BlockPos pos = blockHit.getBlockPos();
-                    BlockState state = world.getBlockState(pos);
-                    Vec3d vec3d = blockHit.getPos();
+                switch(hit.getType()) {
+                    case ENTITY:
+                        EntityHitResult entityHit = (EntityHitResult)hit;
+                        if (entityHit.getEntity() instanceof LivingEntity livingEntity) {
+                            livingEntity.timeUntilRegen = 0;
+                            DamageSource damageSource = DamageTypeReg.shot(world, user, user);
+                            livingEntity.damage(damageSource, (float)user.getAttributeValue(AttributeReg.RANGED_DAMAGE));
+                        }
+                        break;
+                    case BLOCK:
+                        BlockHitResult blockHit = (BlockHitResult)hit;
+                        BlockPos pos = blockHit.getBlockPos();
+                        BlockState state = world.getBlockState(pos);
+                        Vec3d vec3d = blockHit.getPos();
                     
-                    if (!state.isAir() && state.isSolid()) {
-                        if ((state.isIn(ConventionalBlockTags.GLASS_BLOCKS) || state.isIn(ConventionalBlockTags.GLASS_PANES)) && MConfig.bulletsBreakGlass.get()) {
-                            world.breakBlock(pos, false, user);
-                        } else {
-                            world.playSound(null,vec3d.x,vec3d.y,vec3d.z,state.getSoundGroup().getBreakSound(), SoundCategory.BLOCKS, 1.0F, 3.0F);
+                        if (!state.isAir() && state.isSolid()) {
+                            if ((state.isIn(ConventionalBlockTags.GLASS_BLOCKS) || state.isIn(ConventionalBlockTags.GLASS_PANES)) && MConfig.bulletsBreakGlass.get()) {
+                                world.breakBlock(pos, false, user);
+                            } else {
+                                world.playSound(null,vec3d.x,vec3d.y,vec3d.z,state.getSoundGroup().getBreakSound(), SoundCategory.BLOCKS, 1.0F, 3.0F);
 
-                            if (world instanceof ServerWorld serverWorld) {
-                                for (int i = 0; i < 4; ++i) {
-                                    float speed = user.getRandom().nextFloat() - 0.5f;
+                                if (world instanceof ServerWorld serverWorld) {
+                                    for (int i = 0; i < 4; ++i) {
+                                        float speed = user.getRandom().nextFloat() - 0.5f;
 
-                                    serverWorld.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, state), vec3d.x,vec3d.y,vec3d.z, 0, 0, 0, 1, speed);
+                                        serverWorld.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, state), vec3d.x,vec3d.y,vec3d.z, 0, 0, 0, 1, speed);
+                                    }
                                 }
                             }
                         }
-                    }
+                        break;
                 }
             }
         }
