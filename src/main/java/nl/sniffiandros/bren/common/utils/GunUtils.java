@@ -4,7 +4,6 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.tag.convention.v1.ConventionalBlockTags;
 import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
@@ -12,6 +11,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
@@ -23,7 +24,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.ServerWorld;
 import nl.sniffiandros.bren.common.Bren;
 import nl.sniffiandros.bren.common.config.MConfig;
 import nl.sniffiandros.bren.common.entity.BulletEntity;
@@ -78,7 +78,7 @@ public class GunUtils {
             Vec3d down = position.get(2);
             Vec3d side = position.get(3);
             for (PlayerEntity p : user.getWorld().getPlayers()) {
-                    NetworkUtils.sendShotEffect(p, origin.add(side.add(down).multiply(0.15)), front);
+                NetworkUtils.sendShotEffect(p, origin.add(side.add(down).multiply(0.15)), front);
             }
 
             if (!(stack.getItem() instanceof RifleItem)) {
@@ -88,12 +88,20 @@ public class GunUtils {
                     GunUtils.spawnBullet(user, origin, front, stack, new Vec2f(x,y), false, gunItem.bulletLifespan());
                 }
             } else {
+                if (user.getWorld() instanceof ServerWorld serverWorld) {
+                    Vec3d airRingPos = front.multiply(3);
+                    for (ServerPlayerEntity p : serverWorld.getPlayers()) {
+                        serverWorld.spawnParticles(p, ParticleReg.AIR_RING_PARTICLE, false, airRingPos.x, airRingPos.y, airRingPos.z, 1, 0, 0, 0, 0);
+                    }
+                }
+
                 HitResult hit = user.raycast(512f, 1.0f, false);
                 if (hit instanceof EntityHitResult entityHit) {
-                    Entity entity = entityHit.getEntity();
-                    entity.timeUntilRegen = 0;
-                    DamageSource damageSource = DamageTypeReg.shot(world, user, user);
-                    entity.damage(damageSource, (float)user.getAttributeValue(AttributeReg.RANGED_DAMAGE));
+                    if (entityHit.getEntity() instanceof LivingEntity livingEntity) {
+                        livingEntity.timeUntilRegen = 0;
+                        DamageSource damageSource = DamageTypeReg.shot(world, user, user);
+                        livingEntity.damage(damageSource, (float)user.getAttributeValue(AttributeReg.RANGED_DAMAGE));
+                    }
                 } else if (hit instanceof BlockHitResult blockHit) {
                     BlockPos pos = blockHit.getBlockPos();
                     BlockState state = world.getBlockState(pos);
@@ -107,11 +115,9 @@ public class GunUtils {
 
                             if (world instanceof ServerWorld serverWorld) {
                                 for (int i = 0; i < 4; ++i) {
-                                    float x = user.getRandom().nextFloat() - 0.5f;
-                                    float y = user.getRandom().nextFloat() - 0.5f;
-                                    float z = user.getRandom().nextFloat() - 0.5f;
+                                    float speed = user.getRandom().nextFloat() - 0.5f;
 
-                                    serverWorld.spawnParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, state), vec3d.x,vec3d.y,vec3d.z, x, y, z);
+                                    serverWorld.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, state), vec3d.x,vec3d.y,vec3d.z, 0, 0, 0, 1, speed);
                                 }
                             }
                         }
@@ -155,9 +161,9 @@ public class GunUtils {
                                    boolean fireBullet, int bulletLifespan) {
         World world = entity.getWorld();
 
-        float bulletVelocity = 4f * (1 + Math.min(EnchantmentHelper.getLevel(EnchantmentReg.PENETRATING, stack) * 0.2f, 0.4f));
+        float bulletVelocity = 4f * (1 + Math.min(EnchantmentHelper.getLevel(EnchantmentReg.PENETRATING, stack) * 0.125f, 0.25f));
 
-        bulletLifespan *= 1 - (EnchantmentHelper.getLevel(EnchantmentReg.PENETRATING, stack) * 0.2f);
+        bulletLifespan *= 1 - (EnchantmentHelper.getLevel(EnchantmentReg.PENETRATING, stack) * 0.125f);
 
         Vec3d bulletPos = origin.subtract(new Vec3d(0,0.2,0)).subtract(front.multiply((double)bulletVelocity + 0.3d));
         

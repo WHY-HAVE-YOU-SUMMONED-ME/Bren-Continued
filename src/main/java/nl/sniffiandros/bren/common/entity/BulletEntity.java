@@ -27,6 +27,7 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionUtil;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
@@ -47,8 +48,6 @@ public class BulletEntity extends ProjectileEntity {
     private float damage;
     private boolean onFire;
     private int penetratingLevel;
-    @Nullable
-    private Vec3d lastAirRingPosition;
     @Nullable
     private IntOpenHashSet damageBlacklist;
 
@@ -135,13 +134,8 @@ public class BulletEntity extends ProjectileEntity {
             return;
         }
 
-        if (this.lastAirRingPosition == null) {
-            this.lastAirRingPosition = this.getPos();
-        }
-
-        if (this.getWorld().isClient() && this.getPos().squaredDistanceTo(this.lastAirRingPosition) >= 81f) {
+        if (this.getWorld().isClient() && this.age % (8 - this.penetratingLevel) == 0) {
             this.getWorld().addParticle(ParticleReg.AIR_RING_PARTICLE, this.getX(), this.getY() + this.getHeight() / 2, this.getZ(), 0, 0, 0);
-            this.lastAirRingPosition = this.getPos();
         }
     }
 
@@ -198,13 +192,13 @@ public class BulletEntity extends ProjectileEntity {
             } else {
                 this.getWorld().playSound(null,vec3d.x,vec3d.y,vec3d.z,state.getSoundGroup().getBreakSound(), SoundCategory.BLOCKS, 1.0F, 3.0F);
 
-                if (this.getWorld().isClient()) {
+                if (this.getWorld() instanceof ServerWorld serverWorld) {
                     for (int i = 0; i < 4; ++i) {
                         float x = this.random.nextFloat() - 0.5f;
                         float y = this.random.nextFloat() - 0.5f;
                         float z = this.random.nextFloat() - 0.5f;
 
-                        this.getWorld().addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, state), vec3d.x,vec3d.y,vec3d.z, x, y, z);
+                        serverWorld.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, state), vec3d.x,vec3d.y,vec3d.z, 0, 0, 0, 1, speed);
                     }
                 }
 
