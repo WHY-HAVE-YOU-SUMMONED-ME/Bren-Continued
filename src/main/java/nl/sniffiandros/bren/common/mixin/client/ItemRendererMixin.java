@@ -86,7 +86,7 @@ public class ItemRendererMixin {
                     float f = 1 - WeaponTickHolder.getAnimationTicks(delta)/16;
                     boolean reloading = gunUser.getGunState().equals(GunHelper.GunStates.RELOADING);
 
-                    float kick = !reloading ? Math.max((float)entity.getAttributeValue(AttributeReg.RANGED_DAMAGE), 6) / 6 : 1;
+                    float kick = !reloading ? Math.max((float)entity.getAttributeValue(AttributeReg.RANGED_DAMAGE), 8) / 8 : 1;
 
                     if (renderMode.isFirstPerson()) {
 

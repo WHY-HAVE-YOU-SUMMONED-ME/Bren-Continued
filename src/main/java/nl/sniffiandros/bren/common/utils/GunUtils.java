@@ -1,19 +1,22 @@
 package nl.sniffiandros.bren.common.utils;
 
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.tag.convention.v1.ConventionalBlockTags;
+import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.particle.BlockStateParticleEffect;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
@@ -54,7 +57,7 @@ public class GunUtils {
                 user.getY(),
                 user.getZ(),
                 silenced ? gunItem.getSilentShootSound() : gunItem.getShootSound(),
-                SoundCategory.PLAYERS, silenced ? 0.5F : 5.0F,1.0F - (user.getRandom().nextFloat() - 0.5F)/8);
+                SoundCategory.PLAYERS, silenced ? 0.5F : 5.0F, 1.0F - (user.getRandom().nextFloat() - 0.5F) / 8);
 
         if (!silenced) {
             GunUtils.playDistantGunFire(world, user.getPos());
@@ -82,13 +85,34 @@ public class GunUtils {
                     GunUtils.spawnBullet(user, origin, front, stack, new Vec2f(x,y), false, gunItem.bulletLifespan());
                 }
             } else {
-                TargetPredicate predicate = TargetPredicate.createNonAttackable().setBaseMaxDistance(128f);
-                Box ray = new Box(origin.add(front.multiply(128f)), origin);
-                LivingEntity entityHit = world.getClosestEntity(world.getEntitiesByClass(LivingEntity.class, ray, livingEntity -> true), predicate, user, user.getX(), user.getEyeY(), user.getZ());
-                if (entityHit != null && user.canSee(entityHit)) {
-                    entityHit.timeUntilRegen = 0;
+                HitResult hit = user.raycast(512f, 1.0f, false);
+                if (hit instanceof EntityHitResult entityHit) {
+                    Entity entity = entityHit.getEntity();
+                    entity.timeUntilRegen = 0;
                     DamageSource damageSource = DamageTypeReg.shot(world, user, user);
-                    entityHit.damage(damageSource, (float)user.getAttributeValue(AttributeReg.RANGED_DAMAGE));
+                    entity.damage(damageSource, (float)user.getAttributeValue(AttributeReg.RANGED_DAMAGE));
+                } else if (hit instanceof BlockHitResult blockHit) {
+                    BlockPos pos = blockHit.getBlockPos();
+                    BlockState state = world.getBlockState(pos);
+                    Vec3d vec3d = blockHit.getPos();
+                    
+                    if (!state.isAir() && state.isSolid()) {
+                        if ((state.isIn(ConventionalBlockTags.GLASS_BLOCKS) || state.isIn(ConventionalBlockTags.GLASS_PANES)) && MConfig.bulletsBreakGlass.get()) {
+                            world.breakBlock(pos, false, user);
+                        } else {
+                            world.playSound(null,vec3d.x,vec3d.y,vec3d.z,state.getSoundGroup().getBreakSound(), SoundCategory.BLOCKS, 1.0F, 3.0F);
+
+                            if (world instanceof ServerWorld serverWorld) {
+                                for (int i = 0; i < 4; ++i) {
+                                    float x = user.getRandom().nextFloat() - 0.5f;
+                                    float y = user.getRandom().nextFloat() - 0.5f;
+                                    float z = user.getRandom().nextFloat() - 0.5f;
+
+                                    serverWorld.spawnParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, state), vec3d.x,vec3d.y,vec3d.z, x, y, z);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

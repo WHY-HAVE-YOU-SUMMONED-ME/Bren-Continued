@@ -193,7 +193,7 @@ public class BulletEntity extends ProjectileEntity {
         if (!state.isAir() && state.isSolid() && this.age > 1) {
 
             if ((state.isIn(ConventionalBlockTags.GLASS_BLOCKS) || state.isIn(ConventionalBlockTags.GLASS_PANES)) && MConfig.bulletsBreakGlass.get()) {
-                if (this.getWorld().isClient()) { return;}
+                if (this.getWorld().isClient()) return;
                 this.getWorld().breakBlock(pos, false, this.getOwner());
             } else {
                 this.getWorld().playSound(null,vec3d.x,vec3d.y,vec3d.z,state.getSoundGroup().getBreakSound(), SoundCategory.BLOCKS, 1.0F, 3.0F);

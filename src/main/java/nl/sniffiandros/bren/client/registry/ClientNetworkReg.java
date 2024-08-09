@@ -41,7 +41,7 @@ public class ClientNetworkReg {
             client.execute(() -> {
                 World world = client.world;
                 if (world != null) {
-                    SoundInstance soundInstance = PositionedSoundInstance.master(SoundReg.ITEM_DISTANT_GUNFIRE, 1.0F - (world.getRandom().nextFloat() - 0.5F)/8, volume);
+                    SoundInstance soundInstance = PositionedSoundInstance.master(SoundReg.ITEM_DISTANT_GUNFIRE, 1.0F - (world.getRandom().nextFloat() - 0.5F) / 8, volume);
                     client.getSoundManager().play(soundInstance);
                 }
             });
