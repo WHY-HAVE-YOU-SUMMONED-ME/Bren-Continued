@@ -134,7 +134,7 @@ public class BulletEntity extends ProjectileEntity {
             return;
         }
 
-        if (this.getWorld().isClient() && this.age % (8 - this.penetratingLevel) == 0) {
+        if (this.getWorld().isClient() && this.age % (4 - Math.floor(this.penetratingLevel / 2)) == 0) {
             this.getWorld().addParticle(ParticleReg.AIR_RING_PARTICLE, this.getX(), this.getY() + this.getHeight() / 2, this.getZ(), 0, 0, 0);
         }
     }
