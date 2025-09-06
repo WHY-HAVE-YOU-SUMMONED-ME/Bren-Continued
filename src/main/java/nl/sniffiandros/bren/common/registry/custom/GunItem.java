@@ -152,4 +152,9 @@ public class GunItem extends ToolItem implements Vanishable {
     public int bulletAmount() {
         return 1;
     }
+
+    @Override
+    public int getMaxUseTime(ItemStack stack) {
+        return 0;
+    }
 }

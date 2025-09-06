@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class ItemReg {
-    public static final float MACHINE_GUN_RECOIL = 12.5f;
+    public static final float MACHINE_GUN_RECOIL = 9f;
     public static final float AUTO_GUN_RECOIL = 10f;
     public static final float RIFLE_RECOIL = 24f;
     public static final float SHOTGUN_RECOIL = 36f;

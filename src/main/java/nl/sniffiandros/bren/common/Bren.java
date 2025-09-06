@@ -46,14 +46,14 @@ public class Bren implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		MConfig.init();
+
 		AttributeReg.reg();
 		ItemReg.reg();
 		BlockReg.reg();
 		SoundReg.reg();
 		ParticleReg.reg();
 		EnchantmentReg.reg();
-
-		MConfig.init();
 
 		ServerLifecycleEvents.SERVER_STARTING.register(StructureRegistry::registerJigsaws);
 

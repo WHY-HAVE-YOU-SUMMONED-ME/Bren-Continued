@@ -21,6 +21,6 @@ public class SteadyHandsEnchantment extends GunEnchantment {
     }
 
     public int getMaxLevel() {
-        return 2;
+        return 3;
     }
 }

@@ -21,12 +21,13 @@ import java.util.stream.Collectors;
 
 public class TradeRandomGunEnchantmentFactory implements TradeOffers.Factory {
 
-    private static final Set<Enchantment> ENCHANTS = ImmutableList.of(
+    private static final List<Enchantment> ENCHANTS = ImmutableList.of(
             EnchantmentReg.AUTOFILL,
             EnchantmentReg.OVERFLOW,
+            EnchantmentReg.PENETRATING,
             EnchantmentReg.SILENCED,
             EnchantmentReg.STEADY_HANDS
-    ).stream().collect(ImmutableSet.toImmutableSet());
+    );
 
     private final int price;
     private final int exp;
@@ -39,13 +40,12 @@ public class TradeRandomGunEnchantmentFactory implements TradeOffers.Factory {
     @Nullable
     @Override
     public TradeOffer create(Entity entity, Random random) {
-
         int i = random.nextInt(4) + 1;
 
-        Enchantment enchantment = (Enchantment) ENCHANTS.toArray()[random.nextBetween(0, random.nextInt(ENCHANTS.size()-1))];
+        Enchantment enchantment = ENCHANTS.get(random.nextBetween(0, ENCHANTS.size()));
 
-        ItemStack itemStack = EnchantedBookItem.forEnchantment(new EnchantmentLevelEntry(enchantment, i));
+        ItemStack itemStack = EnchantedBookItem.forEnchantment(new EnchantmentLevelEntry(enchantment, Math.min(enchantment.getMaxLevel(), i)));
 
-        return new TradeOffer(new ItemStack(Items.EMERALD,this.price + i + 1), new ItemStack(Items.BOOK), itemStack,12,this.exp,.23f);
+        return new TradeOffer(new ItemStack(Items.EMERALD, this.price + i + 1), new ItemStack(Items.BOOK), itemStack, 12, this.exp, 0.23f);
     }
 }

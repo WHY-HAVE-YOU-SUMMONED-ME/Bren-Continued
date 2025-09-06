@@ -37,17 +37,16 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import nl.sniffiandros.bren.common.Bren;
 import nl.sniffiandros.bren.common.config.MConfig;
-import nl.sniffiandros.bren.common.registry.DamageTypeReg;
 import nl.sniffiandros.bren.common.registry.ParticleReg;
+import nl.sniffiandros.bren.common.utils.GunUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 
 public class BulletEntity extends ProjectileEntity {
     private static final TrackedData<Integer> LIFESPAN = DataTracker.registerData(BulletEntity.class, TrackedDataHandlerRegistry.INTEGER);
-    private float damage;
-    private boolean onFire;
     private int penetratingLevel;
+    private int collisionSteps;
     @Nullable
     private IntOpenHashSet damageBlacklist;
 
@@ -55,11 +54,10 @@ public class BulletEntity extends ProjectileEntity {
         super(entityType, world);
     }
 
-    public BulletEntity(World world, float damage, int lifespan, LivingEntity owner, boolean onFire, int penetratingLevel) {
+    public BulletEntity(World world, int lifespan, LivingEntity owner, int penetratingLevel) {
         super(Bren.BULLET, world);
-        this.damage = damage;
-        this.onFire = onFire;
         this.penetratingLevel = penetratingLevel;
+        this.collisionSteps = (int)Math.ceil(MConfig.bulletCollisionSteps.get() * (1 + (penetratingLevel / 3f)));
         this.setLifespan(lifespan);
         this.setNoGravity(true);
         this.setOwner(owner);
@@ -79,63 +77,33 @@ public class BulletEntity extends ProjectileEntity {
     }
 
     public void tick() {
-        float h;
         super.tick();
-        HitResult hitResult = ProjectileUtil.getCollision(this, this::canHit);
-        boolean bl = false;
-        if (hitResult.getType() == HitResult.Type.BLOCK) {
-            BlockPos blockPos = ((BlockHitResult)hitResult).getBlockPos();
-            BlockState blockState = this.getWorld().getBlockState(blockPos);
-            if (blockState.isOf(Blocks.NETHER_PORTAL)) {
-                this.setInNetherPortal(blockPos);
-                bl = true;
-            } else if (blockState.isOf(Blocks.END_GATEWAY)) {
-                BlockEntity blockEntity = this.getWorld().getBlockEntity(blockPos);
-                if (blockEntity instanceof EndGatewayBlockEntity && EndGatewayBlockEntity.canTeleport(this)) {
-                    EndGatewayBlockEntity.tryTeleportingEntity(this.getWorld(), blockPos, blockState, this, (EndGatewayBlockEntity)blockEntity);
-                }
-                bl = true;
-            }
-        }
-        if (hitResult.getType() != HitResult.Type.MISS && !bl) {
-            this.onCollision(hitResult);
-        }
-        this.checkBlockCollision();
-        Vec3d vec3d = this.getVelocity();
-        double d = this.getX() + vec3d.x;
-        double e = this.getY() + vec3d.y;
-        double f = this.getZ() + vec3d.z;
+        
+        this.stepCollision();
         this.updateRotation();
+
+        float h;
+
         if (this.isTouchingWater()) {
-            for (int i = 0; i < 4; ++i) {
-                float g = 0.25f;
-                this.getWorld().addParticle(ParticleTypes.BUBBLE, d - vec3d.x * g, e - vec3d.y * g, f - vec3d.z * g, vec3d.x, vec3d.y, vec3d.z);
-            }
             h = 0.8f;
         } else {
+            if (this.getWorld().isClient()) {
+                this.getWorld().addParticle(ParticleReg.AIR_RING_PARTICLE, this.getX(), this.getY() + this.getHeight() / 2, this.getZ(), 0, 0, 0);
+            }
             h = 0.99f;
         }
-        this.setVelocity(vec3d.multiply(h));
+
+        Vec3d velocity = this.getVelocity().multiply(h);
+
         if (!this.hasNoGravity()) {
-            Vec3d vec3d2 = this.getVelocity();
-            this.setVelocity(vec3d2.x, vec3d2.y - (double)this.getGravity(), vec3d2.z);
+            velocity.subtract(0, (double)this.getGravity(), 0);
         }
-        this.setPosition(d, e, f);
 
-        double l = this.getVelocity().length();
-
-        if (Math.ceil(l) == 0) {
-            this.discard();
-            return;
-        }
+        this.setVelocity(velocity);
 
         if (this.age >= this.getLifespan()) {
             this.discard();
             return;
-        }
-
-        if (this.getWorld().isClient() && this.age % (4 - Math.floor(this.penetratingLevel / 2)) == 0) {
-            this.getWorld().addParticle(ParticleReg.AIR_RING_PARTICLE, this.getX(), this.getY() + this.getHeight() / 2, this.getZ(), 0, 0, 0);
         }
     }
 
@@ -160,16 +128,19 @@ public class BulletEntity extends ProjectileEntity {
             }
         }
 
-        if (entity instanceof LivingEntity livingEntity) {
-            livingEntity.timeUntilRegen = 0;
-            DamageSource damageSource = DamageTypeReg.shot(this.getWorld(), this, this.getOwner());
-            livingEntity.damage(damageSource, this.damage);
+        GunUtils.processBulletImpact(this.getOwner(), new EntityHitResult(entity, this.getPos().add(0d, this.getHeight() / 2, 0d)));
+        this.tryDiscarding();
+    }
 
-            if (this.onFire) {
-                entity.setOnFireFor(4);
-            }
+    @Override
+    protected void onBlockHit(BlockHitResult blockHitResult) {
+        super.onBlockHit(blockHitResult);
+        if (GunUtils.processBulletImpact(this.getOwner(), blockHitResult)) {
+            this.tryDiscarding();
         }
+    }
 
+    private void tryDiscarding() {
         if (this.penetratingLevel >= 1) { 
             this.penetratingLevel--;
         } else {
@@ -177,33 +148,39 @@ public class BulletEntity extends ProjectileEntity {
         }
     }
 
-    @Override
-    protected void onBlockHit(BlockHitResult blockHitResult) {
-        super.onBlockHit(blockHitResult);
-        BlockPos pos = blockHitResult.getBlockPos();
-        BlockState state = this.getWorld().getBlockState(pos);
-        Vec3d vec3d = blockHitResult.getPos();
+    private void stepCollision() {
+        Vec3d velocityStep = this.getVelocity().multiply(1d / collisionSteps);
 
-        if (!state.isAir() && state.isSolid() && this.age > 1) {
+        for (int i = 0; i < collisionSteps; i++) {
+            if (this.isRemoved()) break;
 
-            if ((state.isIn(ConventionalBlockTags.GLASS_BLOCKS) || state.isIn(ConventionalBlockTags.GLASS_PANES)) && MConfig.bulletsBreakGlass.get()) {
-                if (this.getWorld().isClient()) return;
-                this.getWorld().breakBlock(pos, false, this.getOwner());
-            } else {
-                this.getWorld().playSound(null,vec3d.x,vec3d.y,vec3d.z,state.getSoundGroup().getBreakSound(), SoundCategory.BLOCKS, 1.0F, 3.0F);
+            HitResult hitResult = ProjectileUtil.getCollision(this, this::canHit);
+            boolean bl = false;
 
-                if (this.getWorld() instanceof ServerWorld serverWorld) {
-                    for (int i = 0; i < 4; ++i) {
-                        float x = this.random.nextFloat() - 0.5f;
-                        float y = this.random.nextFloat() - 0.5f;
-                        float z = this.random.nextFloat() - 0.5f;
-
-                        serverWorld.spawnParticles(new BlockStateParticleEffect(ParticleTypes.BLOCK, state), vec3d.x,vec3d.y,vec3d.z, 0, 0, 0, 1, speed);
+            if (hitResult.getType() == HitResult.Type.BLOCK) {
+                BlockPos blockPos = ((BlockHitResult)hitResult).getBlockPos();
+                BlockState blockState = this.getWorld().getBlockState(blockPos);
+                if (blockState.isOf(Blocks.NETHER_PORTAL)) {
+                    this.setInNetherPortal(blockPos);
+                    bl = true;
+                } else if (blockState.isOf(Blocks.END_GATEWAY)) {
+                    BlockEntity blockEntity = this.getWorld().getBlockEntity(blockPos);
+                    if (blockEntity instanceof EndGatewayBlockEntity && EndGatewayBlockEntity.canTeleport(this)) {
+                        EndGatewayBlockEntity.tryTeleportingEntity(this.getWorld(), blockPos, blockState, this, (EndGatewayBlockEntity)blockEntity);
                     }
+                    bl = true;
                 }
-
-                this.discard();
             }
+
+            if (hitResult.getType() != HitResult.Type.MISS && !bl) {
+                this.onCollision(hitResult);
+                if (hitResult.getType() == HitResult.Type.ENTITY) {
+                    break;
+                }
+            }
+            this.checkBlockCollision();
+
+            this.setPosition(this.getPos().add(velocityStep));
         }
     }
 }

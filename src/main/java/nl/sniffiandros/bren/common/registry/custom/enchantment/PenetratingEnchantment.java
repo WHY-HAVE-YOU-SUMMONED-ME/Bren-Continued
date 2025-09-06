@@ -21,7 +21,7 @@ public class PenetratingEnchantment extends GunEnchantment {
     }
 
     public int getMaxLevel() {
-        return 2;
+        return 3;
     }
 
     @Override

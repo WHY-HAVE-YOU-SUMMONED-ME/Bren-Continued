@@ -20,7 +20,6 @@ public class MConfig {
     private static final File file = new File("config/bren_config.json");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-
     @Entry(clientOnly = true)
     public static final ConfigHelper.BooleanValue renderGunOnBack = new ConfigHelper.BooleanValue(true,
             "Renders the gun on backs");
@@ -33,13 +32,25 @@ public class MConfig {
     public static final ConfigHelper.BooleanValue showAmmoGui = new ConfigHelper.BooleanValue(true,
             "Shows the ammo GUI");
 
-    @Entry()
+    @Entry
     public static final ConfigHelper.BooleanValue bulletsBreakGlass = new ConfigHelper.BooleanValue(true,
             "Breaks glass on bullet impact");
 
-    @Entry()
-    public static final ConfigHelper.FloatValue recoilMultiplier = new ConfigHelper.FloatValue(1.0f,
+    @Entry
+    public static final ConfigHelper.FloatValue recoilMultiplier = new ConfigHelper.FloatValue(1f,
             "The recoil multiplier, so 0 is no recoil");
+    
+    @Entry
+    public static final ConfigHelper.FloatValue damageMultiplier = new ConfigHelper.FloatValue(1f,
+            "General damage multiplier for all guns");
+
+    @Entry
+    public static final ConfigHelper.FloatValue headshotMultiplier = new ConfigHelper.FloatValue(2f,
+            "1 to keep the visuals, <1 to disable completely");
+    
+    @Entry
+    public static final ConfigHelper.IntValue bulletCollisionSteps = new ConfigHelper.IntValue(4,
+            "If you set this too low, bullets may become inaccurate");
 
     public static void init() {
         if (!file.exists()) {

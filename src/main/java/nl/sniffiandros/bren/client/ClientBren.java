@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
+import net.minecraft.client.render.entity.EmptyEntityRenderer;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.util.ModelIdentifier;
@@ -22,7 +23,6 @@ import nl.sniffiandros.bren.client.particle.CasingParticle;
 import nl.sniffiandros.bren.client.particle.MuzzleSmokeParticle;
 import nl.sniffiandros.bren.client.registry.ClientNetworkReg;
 import nl.sniffiandros.bren.client.renderer.WeaponTickHolder;
-import nl.sniffiandros.bren.client.renderer.BulletRenderer;
 import nl.sniffiandros.bren.common.Bren;
 import nl.sniffiandros.bren.common.config.MConfig;
 import nl.sniffiandros.bren.common.entity.BulletEntity;
@@ -52,7 +52,7 @@ public class ClientBren implements ClientModInitializer {
         ClientNetworkReg.clientShootPacket();
         ClientNetworkReg.shootAnimationPacket();
         ClientNetworkReg.recoilPacket();
-        EntityRendererRegistry.register(Bren.BULLET, BulletRenderer::new);
+        EntityRendererRegistry.register(Bren.BULLET, EmptyEntityRenderer::new);
         KeyBindingReg.reg();
         ModModelPredicateProvider.regModels();
 

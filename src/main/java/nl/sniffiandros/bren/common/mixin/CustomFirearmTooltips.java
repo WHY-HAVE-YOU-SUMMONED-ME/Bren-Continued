@@ -55,7 +55,7 @@ public abstract class CustomFirearmTooltips {
 
         } else if (attributeID == AttributeReg.RECOIL_MODIFIER_ID) {
             insertion = "˚";
-            value *= 1 - Math.min(EnchantmentHelper.getLevel(EnchantmentReg.STEADY_HANDS, (ItemStack)(Object)this) * 0.2d, 1.0d);
+            value *= 1 - Math.min(EnchantmentHelper.getLevel(EnchantmentReg.STEADY_HANDS, (ItemStack)(Object)this) * 0.125d, 1.0d);
 
             if (player != null) {
                 value += player.getAttributeBaseValue(AttributeReg.RECOIL);
