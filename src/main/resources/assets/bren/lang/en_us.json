@@ -41,6 +41,8 @@
 
   "death.attack.bullet": "%1$s was gunned down by %2$s!",
 
+  "key.bren.reload": "Reload",
+
   "attribute.name.ranged_damage": "Ranged Damage",
   "attribute.name.fire_rate": "Fire Rate",
   "attribute.name.recoil": "Recoil",

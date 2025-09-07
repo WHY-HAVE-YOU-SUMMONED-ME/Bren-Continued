@@ -4,13 +4,12 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.MathHelper;
 
 public class WeaponTickHolder {
-
     private static int ticks;
-    private static int last_ticks;
+    private static int lastTicks;
 
     public static void tick(MinecraftClient client) {
         if (!client.isPaused()) {
-            last_ticks = ticks;
+            lastTicks = ticks;
             ticks = Math.max(0, --ticks);
         }
     }
@@ -20,7 +19,7 @@ public class WeaponTickHolder {
     }
 
     public static float getAnimationTicks(float tickDelta) {
-        return MathHelper.lerp(tickDelta, (float)last_ticks, (float)ticks);
+        return MathHelper.lerp(tickDelta, (float)lastTicks, (float)ticks);
     }
 
 }

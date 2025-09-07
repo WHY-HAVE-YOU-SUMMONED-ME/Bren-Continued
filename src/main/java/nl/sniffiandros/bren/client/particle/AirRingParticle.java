@@ -7,10 +7,9 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.particle.DefaultParticleType;
 
 public class AirRingParticle extends AscendingParticle {
-
     protected AirRingParticle(ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, float scaleMultiplier, SpriteProvider spriteProvider) {
-        super(world, x, y, z, 0.1F, 0.1F, 0.1F, velocityX, velocityY, velocityZ, scaleMultiplier, spriteProvider, 1.0F, 1, 0.0F, true);
-        this.setColor(2.0F,2.0F,2.0F);
+        super(world, x, y, z, 0.1f, 0.1f, 0.1f, velocityX, velocityY, velocityZ, scaleMultiplier, spriteProvider, 1f, 1, 0f, true);
+        this.setColor(2f, 2f, 2f);
     }
 
 
@@ -31,7 +30,7 @@ public class AirRingParticle extends AscendingParticle {
         }
 
         public Particle createParticle(DefaultParticleType defaultParticleType, ClientWorld clientWorld, double d, double e, double f, double g, double h, double i) {
-            return new AirRingParticle(clientWorld, d, e, f, g, h, i, 1.8F, this.spriteProvider);
+            return new AirRingParticle(clientWorld, d, e, f, g, h, i, 1.8f, this.spriteProvider);
         }
     }
 }

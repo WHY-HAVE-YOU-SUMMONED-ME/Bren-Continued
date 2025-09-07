@@ -22,6 +22,7 @@ import nl.sniffiandros.bren.client.particle.AirRingParticle;
 import nl.sniffiandros.bren.client.particle.CasingParticle;
 import nl.sniffiandros.bren.client.particle.MuzzleSmokeParticle;
 import nl.sniffiandros.bren.client.registry.ClientNetworkReg;
+import nl.sniffiandros.bren.client.renderer.RecoilSys;
 import nl.sniffiandros.bren.client.renderer.WeaponTickHolder;
 import nl.sniffiandros.bren.common.Bren;
 import nl.sniffiandros.bren.common.config.MConfig;
@@ -81,12 +82,14 @@ public class ClientBren implements ClientModInitializer {
         ColorProviderRegistry.ITEM.register((stack, tintIndex) -> tintIndex > 0 ? -1 : ((GunWithMagItem)(stack.getItem())).getColor(stack),
                 ItemReg.MACHINE_GUN, ItemReg.AUTO_GUN, ItemReg.NETHERITE_MACHINE_GUN, ItemReg.NETHERITE_AUTO_GUN);
 
-        LivingEntityFeatureRendererRegistrationCallback.EVENT.register((t, r, e, c) -> {
-            if (r instanceof PlayerEntityRenderer && MConfig.renderGunOnBack.get()) {
-                e.register(new MachineGunBackFeatureRenderer(r, c.getItemRenderer()));
-            }});
+        LivingEntityFeatureRendererRegistrationCallback.EVENT.register(
+            (t, r, e, c) -> {
+                if (r instanceof PlayerEntityRenderer && MConfig.renderGunOnBack.get()) {
+                    e.register(new MachineGunBackFeatureRenderer(r, c.getItemRenderer()));
+                }
+            }
+        );
 
-        ClientTickEvents.END_CLIENT_TICK.register(WeaponTickHolder::tick);
         ClientTickEvents.END_CLIENT_TICK.register(WeaponTickHolder::tick);
     }
 

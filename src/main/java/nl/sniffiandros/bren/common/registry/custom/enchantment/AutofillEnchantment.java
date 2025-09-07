@@ -30,7 +30,6 @@ public class AutofillEnchantment extends MagazineEnchantment {
     }
 
     public static void insert(ItemStack mag, PlayerEntity player) {
-
         if (player.getRandom().nextFloat() > 0.1) {
             return;
         }

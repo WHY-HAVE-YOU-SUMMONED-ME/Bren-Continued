@@ -6,7 +6,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
@@ -26,9 +25,11 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.RaycastContext;
+import net.minecraft.world.RaycastContext.FluidHandling;
+import net.minecraft.world.RaycastContext.ShapeType;
 import net.minecraft.world.World;
 import nl.sniffiandros.bren.common.Bren;
 import nl.sniffiandros.bren.common.config.MConfig;
@@ -46,7 +47,6 @@ import nl.sniffiandros.bren.common.registry.custom.MagazineItem;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 
 public class GunUtils {
@@ -83,16 +83,10 @@ public class GunUtils {
             Vec3d down = position.get(2);
             Vec3d side = position.get(3);
             for (PlayerEntity p : world.getPlayers()) {
-                NetworkUtils.sendShotEffect(p, origin.add(side.add(down).multiply(0.15)), front);
+                NetworkUtils.sendShotEffect(p, origin.add(side.multiply(0.4d).add(down.multiply(0.1d))), front);
             }
 
-            if (!(stack.getItem() instanceof RifleItem)) {
-                for (int i = 0; i < gunItem.bulletAmount(); ++i) {
-                    float x = (user.getRandom().nextFloat() - 0.5f) * 2 * gunItem.spread();
-                    float y = (user.getRandom().nextFloat() - 0.5f) * 2 * gunItem.spread();
-                    GunUtils.spawnBullet(user, origin, front, stack, new Vec2f(x,y), gunItem.bulletLifespan());
-                }
-            } else {
+            if (stack.getItem() instanceof RifleItem || MConfig.instantlyHit.get() && gunItem.bulletAmount() == 1) {
                 if (world instanceof ServerWorld serverWorld) {
                     Vec3d airRingPos = front.multiply(8.0);
                     for (int i = 1; i < 3; i++) {
@@ -104,15 +98,12 @@ public class GunUtils {
                         airRingPos = airRingPos.multiply(f, f, f);
                     }
                 }
-
-                Vec3d vec3d2 = user.getCameraPosVec(1f);
-                Vec3d vec3d3 = user.getRotationVec(1f);
-                Vec3d vec3d4 = vec3d2.add(vec3d3.x * 128, vec3d3.y * 128, vec3d3.z * 128);
-                Box box = user.getBoundingBox().stretch(vec3d3.multiply(128)).expand(1d, 1d, 1d);
-                
-                EntityHitResult entityHit = ProjectileUtil.raycast(user, vec3d2, vec3d4, box, entity -> !entity.isSpectator() && entity.canHit(), 16384);
-                if (!GunUtils.processBulletImpact(user, entityHit)) {
-                    GunUtils.processBulletImpact(user, user.raycast(128f, 1f, false));
+                GunUtils.raytraceGunshot(user, EnchantmentHelper.getLevel(EnchantmentReg.PENETRATING, stack));
+            } else {
+                for (int i = 0; i < gunItem.bulletAmount(); ++i) {
+                    float x = (user.getRandom().nextFloat() - 0.5f) * 2 * gunItem.spread();
+                    float y = (user.getRandom().nextFloat() - 0.5f) * 2 * gunItem.spread();
+                    GunUtils.spawnBullet(user, origin, front, stack, new Vec2f(x,y), gunItem.bulletLifespan());
                 }
             }
         }
@@ -120,7 +111,13 @@ public class GunUtils {
         if (user instanceof PlayerEntity player) {
             PacketByteBuf buf = PacketByteBufs.create();
             double recoil = user.getAttributeValue(AttributeReg.RECOIL);
+            
             recoil *= 1 - Math.min(EnchantmentHelper.getLevel(EnchantmentReg.STEADY_HANDS, stack) * 0.125d, 1.0d);
+            
+            if (player.isInSneakingPose()) {
+                recoil *= MConfig.sneakingRecoilMultiplier.get();
+            }
+
             buf.writeFloat((float)recoil);
 
             NetworkUtils.sendDataToClient(player, NetworkReg.RECOIL_CLIENT_PACKET_ID, buf);
@@ -155,7 +152,7 @@ public class GunUtils {
         float bulletVelocity = 4f * (1 + (penetratingLevel / 3f));
         bulletLifespan *= (4f / bulletVelocity);
 
-        Vec3d bulletPos = origin.subtract(new Vec3d(0d, 0.2d, 0d)).subtract(front.multiply(0.3d));
+        Vec3d bulletPos = origin.subtract(new Vec3d(0d, 0.1d, 0d)).subtract(front.multiply(0.3d));
         
         BulletEntity bullet = new BulletEntity(world, bulletLifespan, entity, penetratingLevel);
         
@@ -219,7 +216,7 @@ public class GunUtils {
                     double hitY = entityHit.getPos().getY();
 
                     if (hitY >= (eyeHeight - headshotRadius) && hitY <= (eyeHeight + headshotRadius)) {
-                        world.playSound(null, livingEntity.getX(), livingEntity.getY(), livingEntity.getZ(), SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, user.getSoundCategory(), 1f, 1f);
+                        world.playSound(null, livingEntity.getX(), livingEntity.getY(), livingEntity.getZ(), SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, user.getSoundCategory(), 2f, 1f);
                         if (world instanceof ServerWorld serverWorld) {
                             serverWorld.getChunkManager().sendToNearbyPlayers(user, new EntityAnimationS2CPacket(livingEntity, EntityAnimationS2CPacket.CRIT));
                         }
@@ -239,7 +236,7 @@ public class GunUtils {
             BlockState state = world.getBlockState(pos);
             Vec3d vec3d = blockHit.getPos();
             
-            if (!state.isAir() && state.isSolid()) {
+            if (!state.isAir()) {
                 if ((state.isIn(ConventionalBlockTags.GLASS_BLOCKS) || state.isIn(ConventionalBlockTags.GLASS_PANES)) && MConfig.bulletsBreakGlass.get()) {
                     world.breakBlock(pos, false, user);
                 } else {
@@ -264,5 +261,36 @@ public class GunUtils {
             return GunUtils.processBulletImpact(livingEntity, hit);
         }
         return false;
+    }
+
+    public static void raytraceGunshot(Entity user, int penetratingLevel) {
+        Vec3d rayStart = user.getCameraPosVec(1f);
+        Vec3d rayDirection = user.getRotationVec(1f);
+        Box box = user.getBoundingBox().stretch(rayDirection.multiply(128)).expand(1d, 1d, 1d);
+
+        for (; penetratingLevel >= 0;) {
+            Vec3d rayEnd = rayStart.add(rayDirection.multiply(128));
+            Vec3d hitOffset = null;
+        
+            EntityHitResult entityHit = ProjectileUtil.raycast(user, rayStart, rayEnd, box, entity -> !entity.isSpectator() && entity.canHit(), 16384);
+
+            if (GunUtils.processBulletImpact(user, entityHit)) {
+                hitOffset = entityHit.getPos().subtract(rayStart.add(rayDirection));
+            } else {
+                BlockHitResult blockHit = user.getWorld().raycast(new RaycastContext(rayStart, rayEnd, ShapeType.OUTLINE, FluidHandling.NONE, user));
+
+                if (GunUtils.processBulletImpact(user, blockHit)) {
+                    hitOffset = blockHit.getPos().subtract(rayStart.add(rayDirection));
+                }
+            }
+
+            if (hitOffset != null) {
+                penetratingLevel--;
+                rayStart = rayStart.add(hitOffset);
+                box = box.offset(hitOffset);
+            } else {
+                break;
+            }
+        }
     }
 }

@@ -1,11 +1,9 @@
 package nl.sniffiandros.bren.client;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
@@ -20,12 +18,6 @@ public class HudOverlay implements HudRenderCallback {
     @Override
     public void onHudRender(DrawContext context, float tickDelta) {
         PlayerEntity player = null;
-
-        int width = context.getScaledWindowWidth();
-        int height = context.getScaledWindowHeight();
-
-        int x = width / 2;
-        int y = height / 2;
 
         MinecraftClient client = MinecraftClient.getInstance();
         if (client != null) {
@@ -67,12 +59,12 @@ public class HudOverlay implements HudRenderCallback {
             int ri = rows * 10;
             int row = (int) Math.floor(n / ri);
 
-            int y1 = n * 5 - row * ri * 5;
-            int x1 = 15 * row + 15;
+            int y = n * 5 - row * ri * 5;
+            int x = 15 * row + 15;
 
             int u1 = n < i ? 0 : 24;
 
-            addBulletIcon(context,x1, y1, u + u1, 0);
+            addBulletIcon(context, x, y, u + u1, 0);
         }
 
         RenderSystem.enableDepthTest();
@@ -81,7 +73,7 @@ public class HudOverlay implements HudRenderCallback {
         client.getProfiler().pop();
     }
 
-    public void addBulletIcon(DrawContext context, int x, int y,int u, int v) {
+    public void addBulletIcon(DrawContext context, int x, int y, int u, int v) {
         context.drawTexture(BULLET_ICONS, x, y, u, v, 12, 12, 48, 12);
     }
 }

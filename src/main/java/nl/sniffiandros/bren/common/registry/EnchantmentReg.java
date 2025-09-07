@@ -5,11 +5,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import nl.sniffiandros.bren.common.Bren;
-import nl.sniffiandros.bren.common.registry.custom.enchantment.AutofillEnchantment;
-import nl.sniffiandros.bren.common.registry.custom.enchantment.OverflowEnchantment;
-import nl.sniffiandros.bren.common.registry.custom.enchantment.PenetratingEnchantment;
-import nl.sniffiandros.bren.common.registry.custom.enchantment.SilencedEnchantment;
-import nl.sniffiandros.bren.common.registry.custom.enchantment.SteadyHandsEnchantment;
+import nl.sniffiandros.bren.common.registry.custom.enchantment.*;
 
 public class EnchantmentReg {
     public static Enchantment OVERFLOW = register("overflow", new OverflowEnchantment(Enchantment.Rarity.RARE));

@@ -6,7 +6,6 @@ import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.player.ItemCooldownManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.sound.SoundEvent;
@@ -18,7 +17,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import nl.sniffiandros.bren.common.Bren;
-import nl.sniffiandros.bren.common.config.MConfig;
 import nl.sniffiandros.bren.common.entity.IGunUser;
 import nl.sniffiandros.bren.common.registry.AttributeReg;
 import nl.sniffiandros.bren.common.registry.ItemReg;
@@ -27,7 +25,6 @@ import nl.sniffiandros.bren.common.utils.GunHelper;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.UUID;
 
 public class GunItem extends ToolItem implements Vanishable {
     private final Multimap<EntityAttribute, EntityAttributeModifier> attributeModifiers;
@@ -73,9 +70,7 @@ public class GunItem extends ToolItem implements Vanishable {
         super.appendTooltip(stack, world, tooltip, context);
     }
 
-    public void onReload(PlayerEntity player) {
-
-    }
+    public void onReload(PlayerEntity player) {};
 
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
@@ -100,10 +95,7 @@ public class GunItem extends ToolItem implements Vanishable {
         return 0;
     }
 
-
-    public void useBullet(ItemStack stack) {
-
-    }
+    public void useBullet(ItemStack stack) {};
 
     public static void shotParticles(World world, Vec3d origin, Vec3d direction, Random random) {
         for (int i = 0; i != 8; ++i) {
@@ -115,7 +107,7 @@ public class GunItem extends ToolItem implements Vanishable {
     }
 
     public static void ejectCasingParticle(World world, Vec3d origin, Vec3d direction, Random random) {
-        Vec3d rotated = direction.rotateY((float) (-Math.PI/2));
+        Vec3d rotated = direction.rotateY((float) (-Math.PI / 2));
 
         Vec3d p = origin.add(direction.multiply(0.3f)).add(rotated.multiply(0.26));
         Vec3d v = rotated.multiply(0.15f).add(0, 0.5f + world.getRandom().nextFloat() * 0.1f, 0);
@@ -127,7 +119,7 @@ public class GunItem extends ToolItem implements Vanishable {
         return false;
     }
 
-    public static void startCoolingDown(PlayerEntity player, int ticks, boolean isReload, @Nullable Class affectsClass) {
+    public static void startCoolingDown(PlayerEntity player, int ticks, boolean isReload, @Nullable Class<?> affectsClass) {
         if (player instanceof IGunUser gunUser) {
             for (Item item : ItemReg.firearmItems) {
                 if (affectsClass == null || item.getClass() == affectsClass) {

@@ -18,7 +18,7 @@ public class ItemReg {
     public static final float AUTO_GUN_RECOIL = 10f;
     public static final float RIFLE_RECOIL = 24f;
     public static final float SHOTGUN_RECOIL = 36f;
-    public static List<Item> firearmItems = new ArrayList();
+    public static List<Item> firearmItems = new ArrayList<>();
 
     public static final Item MACHINE_GUN = registerItem("machine_gun", new GunWithMagItem(
             new FabricItemSettings(), ToolMaterials.IRON, TagReg.MEDIUM_MAGAZINES, new GunProperties().rangedDamage(4.5f).fireRate(3).recoil(MACHINE_GUN_RECOIL)

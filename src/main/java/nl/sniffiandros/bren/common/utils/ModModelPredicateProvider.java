@@ -4,7 +4,6 @@ import net.minecraft.client.item.ModelPredicateProviderRegistry;
 import net.minecraft.item.Item;
 import net.minecraft.util.Identifier;
 import nl.sniffiandros.bren.common.registry.ItemReg;
-import nl.sniffiandros.bren.common.registry.custom.GunItem;
 import nl.sniffiandros.bren.common.registry.custom.GunWithMagItem;
 import nl.sniffiandros.bren.common.registry.custom.MagazineItem;
 

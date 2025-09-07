@@ -18,6 +18,7 @@ import net.minecraft.util.math.RotationAxis;
 import net.minecraft.world.World;
 import nl.sniffiandros.bren.client.renderer.WeaponTickHolder;
 import nl.sniffiandros.bren.common.Bren;
+import nl.sniffiandros.bren.common.config.MConfig;
 import nl.sniffiandros.bren.common.entity.IGunUser;
 import nl.sniffiandros.bren.common.registry.AttributeReg;
 import nl.sniffiandros.bren.common.registry.custom.GunItem;
@@ -33,9 +34,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemRenderer.class)
 public class ItemRendererMixin {
-
-    private static final Identifier CONTENT_TEXTURE = new Identifier(Bren.MODID, "test");
-
     @Shadow @Final private ItemModels models;
 
     @ModifyVariable(at = @At("HEAD"), method = "renderItem(Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/render/model/json/ModelTransformationMode;ZLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;IILnet/minecraft/client/render/model/BakedModel;)V", argsOnly = true)
@@ -72,26 +70,23 @@ public class ItemRendererMixin {
             float delta = minecraftClient.getTickDelta();
 
             if (item.getItem() instanceof GunItem) {
-
                 if (entity instanceof IGunUser gunUser) {
-
                     float f1 = 0;
 
                     if (entity instanceof PlayerEntity player) {
                         ItemCooldownManager cooldownManager = player.getItemCooldownManager();
                         f1 = cooldownManager.getCooldownProgress(item.getItem(), delta);
-                        f1 = Math.max(f1 - 0.15F, 0);
+                        f1 = Math.max(f1 - 0.15f, 0);
                     }
 
-                    float f = 1 - WeaponTickHolder.getAnimationTicks(delta)/16;
+                    float f = 1 - WeaponTickHolder.getAnimationTicks(delta) / 16;
                     boolean reloading = gunUser.getGunState().equals(GunHelper.GunStates.RELOADING);
 
-                    float kick = !reloading ? Math.max((float)entity.getAttributeValue(AttributeReg.RANGED_DAMAGE), 8) / 8 : 1;
+                    float kick = !reloading ? Math.max((float)entity.getAttributeValue(AttributeReg.RANGED_DAMAGE) / MConfig.damageMultiplier.get(), 8) / 8 : 1;
 
                     if (renderMode.isFirstPerson()) {
-
-                        float sin = (float) Math.sin((f * 2 - 0.5) * Math.PI) * 0.5F + 0.5F;
-                        float sin2 = (float) Math.sin((f1 * 2 - 0.5) * Math.PI) * 0.5F + 0.5F;
+                        float sin = (float) Math.sin((f * 2 - 0.5) * Math.PI) * 0.5f + 0.5f;
+                        float sin2 = (float) Math.sin((f1 * 2 - 0.5) * Math.PI) * 0.5f + 0.5f;
                         float sin3 = reloading ? sin2 : (float) Math.sin(1 - f);
 
                         double d = (Math.sin(((float) entity.age + delta) / 2) * (reloading ? sin2 : f1)) * 30;

@@ -41,16 +41,28 @@ public class MConfig {
             "The recoil multiplier, so 0 is no recoil");
     
     @Entry
+    public static final ConfigHelper.FloatValue sneakingRecoilMultiplier = new ConfigHelper.FloatValue(0.5f,
+            "Only applies when the player is sneaking");
+    
+    @Entry
     public static final ConfigHelper.FloatValue damageMultiplier = new ConfigHelper.FloatValue(1f,
             "General damage multiplier for all guns");
 
     @Entry
-    public static final ConfigHelper.FloatValue headshotMultiplier = new ConfigHelper.FloatValue(2f,
-            "1 to keep the visuals, <1 to disable completely");
+    public static final ConfigHelper.FloatValue headshotMultiplier = new ConfigHelper.FloatValue(1.5f,
+            "1 to keep the visuals, less than 1 to disable completely");
+    
+    @Entry
+    public static final ConfigHelper.FloatValue bulletSpeedMultiplier = new ConfigHelper.FloatValue(1f,
+            "For every 0.2x increase, bulletCollisionSteps should be added by 1");
     
     @Entry
     public static final ConfigHelper.IntValue bulletCollisionSteps = new ConfigHelper.IntValue(4,
             "If you set this too low, bullets may become inaccurate");
+    
+    @Entry
+    public static final ConfigHelper.BooleanValue instantlyHit = new ConfigHelper.BooleanValue(false,
+            "Shotguns are unaffected by this");
 
     public static void init() {
         if (!file.exists()) {

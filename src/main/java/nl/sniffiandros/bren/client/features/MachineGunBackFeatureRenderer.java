@@ -16,7 +16,6 @@ import net.minecraft.util.math.RotationAxis;
 import nl.sniffiandros.bren.common.entity.IGunUser;
 
 public class MachineGunBackFeatureRenderer <T extends LivingEntity, M extends BipedEntityModel<T>> extends FeatureRenderer<T, M> {
-
     private final ItemRenderer itemRenderer;
 
     public MachineGunBackFeatureRenderer(FeatureRendererContext<T, M> context, ItemRenderer itemRenderer) {
@@ -43,12 +42,12 @@ public class MachineGunBackFeatureRenderer <T extends LivingEntity, M extends Bi
             ModelPart modelPart = this.getContextModel().body;
             modelPart.rotate(matrices);
 
-            matrices.translate(0.1F,0.1F,0.25F);
-            matrices.scale(1.65F,1.65F,1.0F);
+            matrices.translate(0.1f, 0.1f, 0.25f);
+            matrices.scale(1f, 1f, 1f);
             matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(60 + 180));
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-180));
-            BakedModel bakedModel = this.itemRenderer.getModel(stack,entity.getWorld(),entity,entity.getId() + transformationMode.ordinal());
-            this.itemRenderer.renderItem(stack,transformationMode,false,matrices,vertexConsumers,light, OverlayTexture.DEFAULT_UV,bakedModel);
+            BakedModel bakedModel = this.itemRenderer.getModel(stack, entity.getWorld(), entity, entity.getId() + transformationMode.ordinal());
+            this.itemRenderer.renderItem(stack, transformationMode, false, matrices, vertexConsumers, light, OverlayTexture.DEFAULT_UV, bakedModel);
             matrices.pop();
         }
     }
