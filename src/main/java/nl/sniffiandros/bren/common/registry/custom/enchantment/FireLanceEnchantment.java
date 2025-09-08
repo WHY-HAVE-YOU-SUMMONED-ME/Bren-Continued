@@ -1,32 +1,31 @@
 package nl.sniffiandros.bren.common.registry.custom.enchantment;
 
-import net.minecraft.enchantment.Enchantment;
 import net.minecraft.item.ItemStack;
 import nl.sniffiandros.bren.common.registry.custom.types.ShotgunItem;
 
-public class OverflowEnchantment extends MagazineEnchantment {
-    public OverflowEnchantment(Enchantment.Rarity weight) {
+public class FireLanceEnchantment extends GunEnchantment {
+    public FireLanceEnchantment(Rarity weight) {
         super(weight);
     }
 
     public int getMinPower(int level) {
-        return level * 2;
+        return 0;
     }
 
     public int getMaxPower(int level) {
-        return 8;
+        return 4;
     }
 
     public boolean isTreasure() {
-        return false;
+        return true;
     }
 
     public int getMaxLevel() {
-        return 4;
+        return 1;
     }
 
     @Override
     public boolean isAcceptableItem(ItemStack stack) {
-        return super.isAcceptableItem(stack) || stack.getItem() instanceof ShotgunItem;
+        return stack.getItem() instanceof ShotgunItem;
     }
 }

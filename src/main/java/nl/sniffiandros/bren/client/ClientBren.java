@@ -28,7 +28,7 @@ import nl.sniffiandros.bren.common.Bren;
 import nl.sniffiandros.bren.common.config.MConfig;
 import nl.sniffiandros.bren.common.entity.BulletEntity;
 import nl.sniffiandros.bren.common.registry.*;
-import nl.sniffiandros.bren.common.registry.custom.GunWithMagItem;
+import nl.sniffiandros.bren.common.registry.custom.types.GunWithMagItem;
 import nl.sniffiandros.bren.common.utils.ModModelPredicateProvider;
 import org.joml.Matrix4f;
 
@@ -82,15 +82,13 @@ public class ClientBren implements ClientModInitializer {
         ColorProviderRegistry.ITEM.register((stack, tintIndex) -> tintIndex > 0 ? -1 : ((GunWithMagItem)(stack.getItem())).getColor(stack),
                 ItemReg.MACHINE_GUN, ItemReg.AUTO_GUN, ItemReg.NETHERITE_MACHINE_GUN, ItemReg.NETHERITE_AUTO_GUN);
 
-        LivingEntityFeatureRendererRegistrationCallback.EVENT.register(
-            (t, r, e, c) -> {
-                if (r instanceof PlayerEntityRenderer && MConfig.renderGunOnBack.get()) {
-                    e.register(new MachineGunBackFeatureRenderer(r, c.getItemRenderer()));
-                }
-            }
-        );
+        LivingEntityFeatureRendererRegistrationCallback.EVENT.register((t, r, e, c) -> {
+            if (r instanceof PlayerEntityRenderer && MConfig.renderGunOnBack.get()) {
+                e.register(new GunBackFeatureRenderer(r, c.getItemRenderer()));
+            }});
 
-        ClientTickEvents.END_CLIENT_TICK.register(WeaponTickHolder::tick);
+        ClientTickEvents.START_CLIENT_TICK.register(WeaponTickHolder::tick);
+        ClientTickEvents.START_CLIENT_TICK.register(RecoilSys::tick);
     }
 
     public static List<ModelIdentifier> registerGUIModels(Identifier id, List<ModelIdentifier> modelIdentifierList, boolean clothed, boolean hasMagazine) {

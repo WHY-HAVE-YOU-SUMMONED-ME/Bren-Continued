@@ -71,10 +71,12 @@ public class Bren implements ModInitializer {
 			content.addAfter(ItemReg.MACHINE_GUN, ItemReg.AUTO_GUN);
 			content.addAfter(ItemReg.AUTO_GUN, ItemReg.SHOTGUN);
 			content.addAfter(ItemReg.SHOTGUN, ItemReg.RIFLE);
-			content.addAfter(ItemReg.RIFLE, ItemReg.NETHERITE_MACHINE_GUN);
+			content.addAfter(ItemReg.RIFLE, ItemReg.REVOLVER);
+			content.addAfter(ItemReg.REVOLVER, ItemReg.NETHERITE_MACHINE_GUN);
 			content.addAfter(ItemReg.NETHERITE_MACHINE_GUN, ItemReg.NETHERITE_AUTO_GUN);
 			content.addAfter(ItemReg.NETHERITE_AUTO_GUN, ItemReg.NETHERITE_SHOTGUN);
 			content.addAfter(ItemReg.NETHERITE_SHOTGUN, ItemReg.NETHERITE_RIFLE);
+			content.addAfter(ItemReg.NETHERITE_RIFLE, ItemReg.NETHERITE_REVOLVER);
 			content.addAfter(Items.DIAMOND_HORSE_ARMOR, ItemReg.MAGAZINE);
 			content.addAfter(ItemReg.MAGAZINE, mag);
 			content.addAfter(mag, ItemReg.CLOTHED_MAGAZINE);
@@ -85,8 +87,8 @@ public class Bren implements ModInitializer {
 			content.addAfter(ItemReg.BULLET, ItemReg.SHELL);
 		});
 
-		VillagerRegistry.registerVillagers();
-		VillagerRegistry.registerTrades();
+		VillagerRegistry.reg();
+		VillagerRegistry.regTrades();
 
 		LOGGER.info(String.format("BAM! %s is done loading!", MODID));
 	}

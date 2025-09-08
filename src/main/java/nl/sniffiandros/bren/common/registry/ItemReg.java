@@ -8,7 +8,9 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import nl.sniffiandros.bren.common.Bren;
+import nl.sniffiandros.bren.common.config.MConfig;
 import nl.sniffiandros.bren.common.registry.custom.*;
+import nl.sniffiandros.bren.common.registry.custom.types.*;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -18,6 +20,7 @@ public class ItemReg {
     public static final float AUTO_GUN_RECOIL = 10f;
     public static final float RIFLE_RECOIL = 24f;
     public static final float SHOTGUN_RECOIL = 36f;
+    public static final float REVOLVER_RECOIL = 12f;
     public static List<Item> firearmItems = new ArrayList<>();
 
     public static final Item MACHINE_GUN = registerItem("machine_gun", new GunWithMagItem(
@@ -51,6 +54,14 @@ public class ItemReg {
     public static final Item NETHERITE_SHOTGUN = registerItem("netherite_shotgun", new ShotgunItem(
             new FabricItemSettings().fireproof(), ToolMaterials.NETHERITE, new GunProperties().rangedDamage(3.5f).fireRate(22).recoil(SHOTGUN_RECOIL)
             .shootSound(SoundReg.ITEM_SHOTGUN_SHOOT, null)));
+
+    public static final Item REVOLVER = registerItem("revolver", new RevolverItem(
+            new FabricItemSettings(), ToolMaterials.IRON, new GunProperties().rangedDamage(5f).fireRate(1).recoil(REVOLVER_RECOIL)
+            .shootSound(SoundReg.ITEM_REVOLVER_SHOOT, null)));
+
+    public static final Item NETHERITE_REVOLVER = registerItem("netherite_revolver", new RevolverItem(
+            new FabricItemSettings().fireproof(), ToolMaterials.NETHERITE, new GunProperties().rangedDamage(6f).fireRate(1).recoil(REVOLVER_RECOIL)
+            .shootSound(SoundReg.ITEM_REVOLVER_SHOOT, null)));
 
     public static final Item MAGAZINE = registerItem("magazine", new MagazineItem(new FabricItemSettings(), 20));
     public static final Item CLOTHED_MAGAZINE = registerItem("clothed_magazine", new ColorableMagazineItem(new FabricItemSettings(), 20));

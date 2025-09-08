@@ -1,15 +1,19 @@
-package nl.sniffiandros.bren.common.registry.custom;
+package nl.sniffiandros.bren.common.registry.custom.types;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import net.minecraft.client.item.TooltipContext;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.TypedActionResult;
@@ -19,8 +23,8 @@ import net.minecraft.world.World;
 import nl.sniffiandros.bren.common.Bren;
 import nl.sniffiandros.bren.common.entity.IGunUser;
 import nl.sniffiandros.bren.common.registry.AttributeReg;
-import nl.sniffiandros.bren.common.registry.ItemReg;
 import nl.sniffiandros.bren.common.registry.ParticleReg;
+import nl.sniffiandros.bren.common.registry.custom.PoseType;
 import nl.sniffiandros.bren.common.utils.GunHelper;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,6 +55,26 @@ public class GunItem extends ToolItem implements Vanishable {
         return super.getAttributeModifiers(slot);
     }
 
+    public boolean applyCustomMatrix(LivingEntity entity, GunHelper.GunStates state, MatrixStack matrixStack, ItemStack stack, float cooldownProgress, ModelTransformationMode renderMode, boolean leftHanded) {return false;}
+
+    public boolean hasGUIModel() {return true;}
+
+    public boolean ejectCasing() {return true;}
+
+    public boolean renderOnBack() {return true;}
+
+    @Override
+    public Multimap<EntityAttribute, EntityAttributeModifier> getAttributeModifiers(EquipmentSlot slot) {
+        if (slot == EquipmentSlot.MAINHAND) {
+            return this.attributeModifiers;
+        }
+        return super.getAttributeModifiers(slot);
+    }
+
+    public PoseType holdingPose() {
+        return PoseType.TWO_ARMS;
+    }
+
     public int getMaxCapacity(ItemStack stack) {
         return 0;
     }
@@ -71,6 +95,8 @@ public class GunItem extends ToolItem implements Vanishable {
     }
 
     public void onReload(PlayerEntity player) {};
+
+    public void reloadTick(ItemStack stack, World world, PlayerEntity player, IGunUser gunUser) {};
 
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
@@ -138,12 +164,14 @@ public class GunItem extends ToolItem implements Vanishable {
     }
 
     public float spread() {
-        return 0.0f;
+        return 0f;
     }
 
     public int bulletAmount() {
         return 1;
     }
+
+    public int reloadSpeed() {return 20;}
 
     @Override
     public int getMaxUseTime(ItemStack stack) {

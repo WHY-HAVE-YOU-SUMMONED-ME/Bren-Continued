@@ -8,8 +8,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import nl.sniffiandros.bren.common.Bren;
-import nl.sniffiandros.bren.common.registry.custom.GunItem;
-import nl.sniffiandros.bren.common.registry.custom.GunWithMagItem;
+import nl.sniffiandros.bren.common.registry.custom.types.GunItem;
+import nl.sniffiandros.bren.common.registry.custom.types.GunWithMagItem;
 
 public class HudOverlay implements HudRenderCallback {
     private static final Identifier BULLET_ICONS = new Identifier(Bren.MODID,

@@ -5,7 +5,8 @@
   "mixins": [
     "CustomFirearmTooltips",
     "PlayerEntityMixin",
-    "StructurePoolAccessor"
+    "StructurePoolAccessor",
+    "TooltipsMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,7 +1,10 @@
 package nl.sniffiandros.bren.common.registry.custom.trade;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.item.*;
+import net.minecraft.item.DyeItem;
+import net.minecraft.item.DyeableItem;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.village.TradeOffer;

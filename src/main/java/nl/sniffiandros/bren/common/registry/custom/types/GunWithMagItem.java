@@ -1,4 +1,4 @@
-package nl.sniffiandros.bren.common.registry.custom;
+package nl.sniffiandros.bren.common.registry.custom.types;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
@@ -16,6 +16,8 @@ import net.minecraft.world.World;
 import nl.sniffiandros.bren.common.Bren;
 import nl.sniffiandros.bren.common.entity.IGunUser;
 import nl.sniffiandros.bren.common.registry.SoundReg;
+import nl.sniffiandros.bren.common.registry.custom.ColorableMagazineItem;
+import nl.sniffiandros.bren.common.registry.custom.MagazineItem;
 import nl.sniffiandros.bren.common.utils.GunHelper;
 
 public class GunWithMagItem extends GunItem {
@@ -181,11 +183,43 @@ public class GunWithMagItem extends GunItem {
     }
 
     @Override
+    public void reloadTick(ItemStack stack, World world, PlayerEntity player, IGunUser gunUser) {
+        ItemCooldownManager cooldownManager = player.getItemCooldownManager();
+
+        if (!cooldownManager.isCoolingDown(stack.getItem())) {
+            if (GunWithMagItem.hasMagazine(stack)) {
+
+                GunWithMagItem.unloadMagazine(stack, player);
+
+                world.playSound(null,
+                        player.getX(),
+                        player.getY(),
+                        player.getZ(),
+                        SoundReg.ITEM_MAGAZINE_REMOVE,
+                        SoundCategory.PLAYERS, 1.0F, 1.0F - (player.getRandom().nextFloat() - 0.5F) / 4);
+
+            } else {
+                ItemStack mag = Bren.getMagazineFromPlayer(player, ((GunWithMagItem) stack.getItem()).compatibleMagazines());
+                GunWithMagItem.putMagazine(stack, mag);
+                mag.decrement(1);
+            }
+            gunUser.setGunState(GunHelper.GunStates.NORMAL);
+            gunUser.setCanReload(true);
+        } else if (cooldownManager.getCooldownProgress(stack.getItem(),1) == 0.75F && !GunWithMagItem.hasMagazine(stack)) {
+            world.playSound(null,
+                    player.getX(),
+                    player.getY(),
+                    player.getZ(),
+                    SoundReg.ITEM_MAGAZINE_INSERT,
+                    SoundCategory.PLAYERS, 1.0F, 1.0F - (player.getRandom().nextFloat() - 0.5F) / 4);
+        }
+
+    }
+
+    @Override
     public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
         if (entity instanceof IGunUser gunUser && entity instanceof PlayerEntity player) {
-            ItemCooldownManager cooldownManager = player.getItemCooldownManager();
             if (selected) {
-
                 if (gunUser.getGunState().equals(GunHelper.GunStates.RELOADING)) {
                     if (!cooldownManager.isCoolingDown(stack.getItem())) {
                         if (GunWithMagItem.hasMagazine(stack)) {

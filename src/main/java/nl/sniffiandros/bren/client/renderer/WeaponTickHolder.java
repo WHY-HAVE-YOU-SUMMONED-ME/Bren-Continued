@@ -21,5 +21,4 @@ public class WeaponTickHolder {
     public static float getAnimationTicks(float tickDelta) {
         return MathHelper.lerp(tickDelta, (float)lastTicks, (float)ticks);
     }
-
 }

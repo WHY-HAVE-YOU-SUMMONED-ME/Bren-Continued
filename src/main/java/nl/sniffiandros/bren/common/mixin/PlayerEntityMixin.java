@@ -3,6 +3,7 @@ package nl.sniffiandros.bren.common.mixin;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -21,7 +22,7 @@ import nl.sniffiandros.bren.common.Bren;
 import nl.sniffiandros.bren.common.entity.IGunUser;
 import nl.sniffiandros.bren.common.events.MEvents;
 import nl.sniffiandros.bren.common.registry.AttributeReg;
-import nl.sniffiandros.bren.common.registry.custom.GunItem;
+import nl.sniffiandros.bren.common.registry.custom.types.GunItem;
 import nl.sniffiandros.bren.common.utils.GunHelper;
 import nl.sniffiandros.bren.common.utils.GunUtils;
 import org.spongepowered.asm.mixin.Mixin;
@@ -40,6 +41,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IGunUser
     private static final TrackedData<NbtCompound> LAST_GUN_NBT = DataTracker.registerData(PlayerEntity.class, TrackedDataHandlerRegistry.NBT_COMPOUND);
     private static final TrackedData<Integer> GUN_TICKS = DataTracker.registerData(PlayerEntity.class, TrackedDataHandlerRegistry.INTEGER);
     private boolean canReload = true;
+    private ItemStack reloadingGun = ItemStack.EMPTY;
     private ItemStack lastGun = ItemStack.EMPTY;
     private ItemStack lastEquippedGun = ItemStack.EMPTY;
     private boolean lastGunLoaded = false;
@@ -62,6 +64,35 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IGunUser
     @Override
     public boolean canShoot(Predicate<ItemStack> predicate) {
         return predicate.test(this.getMainHandStack());
+    }
+
+    @Override
+    public void setReloadingGun(ItemStack reloadingGun) {
+        this.reloadingGun = reloadingGun;
+    }
+
+    public void reloadTick() {
+
+        if (this.getWorld().isClient()) return;
+
+        PlayerEntity player = (PlayerEntity)(Object)this;
+
+        ItemCooldownManager cooldownManager = this.getItemCooldownManager();
+
+        if (this.getMainHandStack().getItem() instanceof GunItem gunItem && this.getGunState().equals(GunHelper.GunStates.RELOADING)) {
+            gunItem.reloadTick(this.reloadingGun, this.getWorld(), player, (IGunUser) player);
+        }
+
+        if (this.getGunState().equals(GunHelper.GunStates.RELOADING) && this.getMainHandStack() != this.reloadingGun) {
+            cooldownManager.remove(this.reloadingGun.getItem());
+            this.setGunState(GunHelper.GunStates.NORMAL);
+            this.setCanReload(true);
+        }
+
+        if (this.getGunState().equals(GunHelper.GunStates.NORMAL) && !this.reloadingGun.isEmpty()) {
+            cooldownManager.remove(this.reloadingGun.getItem());
+            this.reloadingGun = ItemStack.EMPTY;
+        }
     }
 
     public void handleShooting() {
@@ -89,6 +120,14 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IGunUser
 
             GunUtils.sendAnimationPacket(player);
         }
+    }
+
+    @Inject(at = @At("RETURN"), method = "createPlayerAttributes()Lnet/minecraft/entity/attribute/DefaultAttributeContainer$Builder;")
+    private static void createPlayerAttributes(CallbackInfoReturnable<DefaultAttributeContainer.Builder> cir) {
+        cir.getReturnValue()
+                .add(AttributeReg.RANGED_DAMAGE, 0d)
+                .add(AttributeReg.FIRE_RATE, 0d)
+                .add(AttributeReg.RECOIL, 0d);
     }
 
     @Override
@@ -142,8 +181,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IGunUser
         ItemStack handItem = this.getMainHandStack();
 
         if (handItem != null) {
-            if (handItem.getItem() instanceof GunItem) {
-                this.lastEquippedGun = handItem;
+            if (handItem.getItem() instanceof GunItem gunItem) {
+                if (gunItem.renderOnBack()) {
+                    this.lastEquippedGun = handItem;
+                }
             }
             if (!handItem.equals(this.lastEquippedGun)) {
                 this.lastGun = this.lastEquippedGun;
@@ -161,6 +202,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IGunUser
         } else {
             this.shootingDur = 0;
         }
+
+        this.reloadTick();
     }
 
     private void buildLastGun(NbtCompound itemNbt) {

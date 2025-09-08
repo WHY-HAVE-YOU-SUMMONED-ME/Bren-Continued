@@ -40,9 +40,7 @@ import nl.sniffiandros.bren.common.registry.AttributeReg;
 import nl.sniffiandros.bren.common.registry.EnchantmentReg;
 import nl.sniffiandros.bren.common.registry.ItemReg;
 import nl.sniffiandros.bren.common.registry.NetworkReg;
-import nl.sniffiandros.bren.common.registry.ParticleReg;
-import nl.sniffiandros.bren.common.registry.custom.GunItem;
-import nl.sniffiandros.bren.common.registry.custom.RifleItem;
+import nl.sniffiandros.bren.common.registry.custom.types.GunItem;
 import nl.sniffiandros.bren.common.registry.custom.MagazineItem;
 
 import java.util.ArrayList;
@@ -53,10 +51,11 @@ public class GunUtils {
     public static int fire(LivingEntity user) {
         World world = user.getWorld();
         ItemStack stack = user.getMainHandStack();
+        IGunUser gunUser = (IGunUser)user;
 
         if (!(stack.getItem() instanceof GunItem gunItem)) return 0;
 
-        if (!((IGunUser)user).getGunState().equals(GunHelper.GunStates.NORMAL)) return 0;
+        if (!gunUser.getGunState().equals(GunHelper.GunStates.NORMAL)) return 0;
 
         boolean silenced = EnchantmentHelper.getLevel(EnchantmentReg.SILENCED, stack) >= 1;
 
@@ -127,6 +126,13 @@ public class GunUtils {
         return fireRate;
     }
 
+    public static double CalculateRecoil(PlayerEntity player, ItemStack stack, double baseRecoil) {
+        baseRecoil *= MConfig.recoilMultiplier.get();
+        baseRecoil /= ((EnchantmentHelper.getLevel(EnchantmentReg.STEADY_HANDS, stack) * 2.6d * 0.1d) + 1);
+        baseRecoil = EnchantmentHelper.getLevel(EnchantmentReg.MOUNTED, stack) == 1 && player.isSneaking() ? baseRecoil / 2 : baseRecoil;
+        return Math.round(baseRecoil * 2) / 2.0;
+    }
+
     public static List<Vec3d> calculatePositionBasedOnAngle(LivingEntity entity) {
         Vec3d front = Vec3d.fromPolar(entity.getPitch(), entity.getYaw());
         Arm arm = entity.getMainArm();
@@ -161,6 +167,7 @@ public class GunUtils {
 
         bullet.velocityModified = true;
         bullet.velocityDirty = true;
+        bullet.setFireTicks(ticksOnFire);
 
         world.spawnEntity(bullet);
     }
@@ -188,6 +195,7 @@ public class GunUtils {
             }
         });
     }
+
 
     public static void fillMagazine(ItemStack mag, PlayerEntity player) {
         while (mag.getItem() instanceof MagazineItem) {

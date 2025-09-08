@@ -1,7 +1,8 @@
 package nl.sniffiandros.bren.common.registry.custom.enchantment;
 
 import net.minecraft.item.ItemStack;
-import nl.sniffiandros.bren.common.registry.custom.ShotgunItem;
+import nl.sniffiandros.bren.common.registry.custom.types.RevolverItem;
+import nl.sniffiandros.bren.common.registry.custom.types.ShotgunItem;
 
 public class SilencedEnchantment extends GunEnchantment {
     public SilencedEnchantment(Rarity weight) {
@@ -26,6 +27,6 @@ public class SilencedEnchantment extends GunEnchantment {
 
     @Override
     public boolean isAcceptableItem(ItemStack stack) {
-        return super.isAcceptableItem(stack) && !(stack.getItem() instanceof ShotgunItem);
+        return super.isAcceptableItem(stack) && !(stack.getItem() instanceof ShotgunItem || stack.getItem() instanceof RevolverItem);
     }
 }

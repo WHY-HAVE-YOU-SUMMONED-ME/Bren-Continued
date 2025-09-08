@@ -3,10 +3,12 @@
   "item.bren.auto_gun": "Auto-Gun",
   "item.bren.rifle": "Rifle",
   "item.bren.shotgun": "Shotgun",
+  "item.bren.revolver": "Revolver",
   "item.bren.netherite_machine_gun": "Netherite Machine Gun",
   "item.bren.netherite_auto_gun": "Netherite Auto-Gun",
   "item.bren.netherite_rifle": "Netherite Rifle",
   "item.bren.netherite_shotgun": "Netherite Shotgun",
+  "item.bren.netherite_revolver": "Netherite Revolver",
 
   "item.bren.magazine": "Magazine",
   "item.bren.short_magazine": "Short Magazine",
@@ -38,6 +40,9 @@
   "bren.item.rack": "Shotgun racked",
   "bren.particle.casing.bounce": "Casing bouncing",
   "bren.entity.villager.work_gunsmith": "Gunsmith works",
+  "bren.item.revolver.bullet_insert": "Bullet inserted",
+  "bren.item.revolver.reload": "Cylinder clicks",
+  "bren.item.revolver.spinning": "Revolver spinning",
 
   "death.attack.bullet": "%1$s was gunned down by %2$s!",
 
@@ -61,6 +66,9 @@
 
   "advancements.bren.adventure.shotgun.description": "Obtain an Shotgun",
   "advancements.bren.adventure.shotgun.title": "BAM!!!",
+
+  "advancements.bren.adventure.revolver.description": "Obtain an Revolver",
+  "advancements.bren.adventure.revolver.title": "Little Jimmy",
 
   "advancements.bren.adventure.warcrimes.description": "Kill a villager with a gun",
   "advancements.bren.adventure.warcrimes.title": "War crimes",

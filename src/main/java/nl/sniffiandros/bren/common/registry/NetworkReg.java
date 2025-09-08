@@ -4,7 +4,9 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import nl.sniffiandros.bren.common.Bren;
-import nl.sniffiandros.bren.common.registry.custom.GunItem;
+import nl.sniffiandros.bren.common.entity.IGunUser;
+import nl.sniffiandros.bren.common.mixin.PlayerEntityMixin;
+import nl.sniffiandros.bren.common.registry.custom.types.GunItem;
 import nl.sniffiandros.bren.common.registry.custom.MagazineItem;
 import nl.sniffiandros.bren.common.utils.GunUtils;
 
@@ -22,6 +24,7 @@ public class NetworkReg {
 
                 if (stack.getItem() instanceof GunItem gunItem) {
                     gunItem.onReload(player);
+                    ((IGunUser) player).setReloadingGun(stack);
                 } else if (stack.getItem() instanceof MagazineItem) {
                     GunUtils.fillMagazine(stack, player);
                 }
