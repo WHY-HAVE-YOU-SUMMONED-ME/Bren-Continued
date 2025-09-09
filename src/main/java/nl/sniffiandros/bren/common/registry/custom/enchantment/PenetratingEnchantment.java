@@ -6,11 +6,11 @@ public class PenetratingEnchantment extends GunEnchantment {
     }
 
     public int getMinPower(int level) {
-        return 0;
+        return (level - 1) * 16;
     }
 
     public int getMaxPower(int level) {
-        return level * 2;
+        return getMinPower(level) + 50;
     }
 
     public boolean isTreasure() {

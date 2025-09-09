@@ -20,11 +20,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Environment(value= EnvType.CLIENT)
 @Mixin(LivingEntityRenderer.class)
 public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extends EntityModel<T>> {
-
-
 	@Inject(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/EntityModel;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;IIFFFF)V"))
 	private void renderer(T livingEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
-		double target_degree = livingEntity.getMainArm() == Arm.LEFT ? 135D : 45D;
+		double targetDegrees = livingEntity.getMainArm() == Arm.LEFT ? 135d : 45d;
 
 		ItemStack s = livingEntity.getMainHandStack();
 
@@ -34,7 +32,7 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
 					if (!livingEntity.hasVehicle()) {
 						livingEntity.setBodyYaw(livingEntity.getHeadYaw());
 					}
-					matrixStack.multiply(RotationAxis.NEGATIVE_Y.rotation((float) Math.toRadians(target_degree - 90)));
+					matrixStack.multiply(RotationAxis.NEGATIVE_Y.rotation((float) Math.toRadians(targetDegrees - 90)));
 				}
 			}
 		}

@@ -10,11 +10,11 @@ public class OverflowEnchantment extends MagazineEnchantment {
     }
 
     public int getMinPower(int level) {
-        return level * 2;
+        return 5 + (level - 1) * 10;
     }
 
     public int getMaxPower(int level) {
-        return 8;
+        return getMinPower(level) + 15;
     }
 
     public boolean isTreasure() {

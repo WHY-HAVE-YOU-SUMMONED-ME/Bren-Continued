@@ -64,7 +64,6 @@ public class ItemRendererMixin {
     @Inject(at = @At("HEAD"), method = "renderItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/render/model/json/ModelTransformationMode;ZLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/world/World;III)V")
     private void render(LivingEntity entity, ItemStack item, ModelTransformationMode renderMode, boolean leftHanded, MatrixStack matrices, VertexConsumerProvider vertexConsumers, World world, int light, int overlay, int seed, CallbackInfo ci) {
         if (entity != null) {
-
             MinecraftClient minecraftClient = MinecraftClient.getInstance();
             float delta = minecraftClient.getTickDelta();
 
@@ -74,27 +73,27 @@ public class ItemRendererMixin {
 
                     float f1 = cooldownManager.getCooldownProgress(item.getItem(), delta);
                     f1 = Math.max(f1 - 0.15f, 0);
-                    
+
                     boolean reloading = gunUser.getGunState().equals(GunHelper.GunStates.RELOADING);
                     boolean isRevolver = gunItem instanceof RevolverItem;
                     boolean customMatrix = gunItem.applyCustomMatrix(entity, gunUser.getGunState(), matrices, item, f1, renderMode, leftHanded);
-                    
+
                     float f = 1 - WeaponTickHolder.getAnimationTimeLeft(delta);
                     float kick = !reloading ? (float)GunUtils.getRecoilTicks(GunUtils.getRecoil(player, item)) / 6f : 1f;
 
                     if (renderMode.isFirstPerson() && !customMatrix) {
-                        float sin = (float) Math.sin((f * 2 - 0.5) * Math.PI) * 0.5f + 0.5f;
-                        float sin2 = (float) Math.sin((f1 * 2 - 0.5) * Math.PI) * 0.5f + 0.5f;
-                        float sin3 = reloading ? sin2 : (float) Math.sin(1 - f);
+                        float sin = (float)Math.sin((f * 2 - 0.5) * Math.PI) * 0.5f + 0.5f;
+                        float sin2 = (float)Math.sin((f1 * 2 - 0.5) * Math.PI) * 0.5f + 0.5f;
+                        float sin3 = reloading ? sin2 : (float)Math.sin(1 - f);
 
-                        double d = (Math.sin(((float) entity.age + delta) / 2) * (reloading ? sin2 : f1)) * 30;
+                        double d = (Math.sin(((float)entity.age + delta) / 2) * (reloading ? sin2 : f1)) * 30;
 
                         matrices.translate(0f, 0f, reloading ? 0 : (sin / 2f + f1 / 4f) / (kick * (isRevolver ? 2f : 0.5f)));
-                        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float) (leftHanded ? -15 + d : 15 + d)));
-                        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees((sin3 * 10) * kick * (isRevolver ? 2.5f : 0.5f)));
+                        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees((float)(leftHanded ? -15 + d : 15 + d)));
+                        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees((sin3 * 10) * kick * (isRevolver ? 2f : 0.5f)));
                     } else {
                         float z = Math.max((1 - f + f1) / 2, 0);
-                        float f2 = reloading ? ((float) Math.sin((f1 * 2 - 0.5) * Math.PI) * 0.5f + 0.5f) / 3 : z;
+                        float f2 = reloading ? ((float)Math.sin((f1 * 2 - 0.5) * Math.PI) * 0.5f + 0.5f) / 3 : z;
                         matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(f2 * 30 + (isRevolver ? 0 : 45)));
 
                         if (!isRevolver) {

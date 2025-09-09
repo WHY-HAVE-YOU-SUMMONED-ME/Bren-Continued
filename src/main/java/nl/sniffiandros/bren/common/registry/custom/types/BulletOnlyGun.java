@@ -1,6 +1,7 @@
 package nl.sniffiandros.bren.common.registry.custom.types;
 
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.ItemCooldownManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -11,6 +12,7 @@ import nl.sniffiandros.bren.common.Bren;
 import nl.sniffiandros.bren.common.entity.IGunUser;
 import nl.sniffiandros.bren.common.registry.EnchantmentReg;
 import nl.sniffiandros.bren.common.registry.ItemReg;
+import nl.sniffiandros.bren.common.registry.custom.enchantment.AutofillEnchantment;
 import nl.sniffiandros.bren.common.utils.GunHelper;
 
 public class BulletOnlyGun extends GunItem {
@@ -80,18 +82,27 @@ public class BulletOnlyGun extends GunItem {
     public void reloadTick(ItemStack stack, World world, PlayerEntity player, IGunUser gunUser) {
         ItemCooldownManager cooldownManager = player.getItemCooldownManager();
 
-        if (!cooldownManager.isCoolingDown(stack.getItem()) && getContents(stack) < getMaxCapacity(stack)) {
-            ItemStack bullets = Bren.getItemFromPlayer(player, compatibleBullet());
+        if (!cooldownManager.isCoolingDown(stack.getItem()) && getContents(stack) <= getMaxCapacity(stack)) {
+            if (getContents(stack) < getMaxCapacity(stack)) {
+                ItemStack bullets = Bren.getItemFromPlayer(player, compatibleBullet());
 
-            bullets.decrement(1);
-            addContent(stack);
+                bullets.decrement(1);
+                addContent(stack);
 
-            afterInserted(stack, player);
-
+                afterInserted(stack, player);
+            }
             gunUser.setGunState(GunHelper.GunStates.NORMAL);
             gunUser.setCanReload(true);
         } else if (cooldownManager.getCooldownProgress(stack.getItem(), 1) == 0 && getContents(stack) == getMaxCapacity(stack) - 1) {
             onFullyLoaded(stack, player);
+        }
+    }
+
+    @Override
+    public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
+        super.inventoryTick(stack, world, entity, slot, selected);
+        if (entity instanceof PlayerEntity player && EnchantmentHelper.getLevel(EnchantmentReg.AUTOFILL, stack) > 0) {
+            AutofillEnchantment.insert(stack, player);
         }
     }
 }

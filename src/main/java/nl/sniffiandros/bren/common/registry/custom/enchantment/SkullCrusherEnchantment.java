@@ -9,15 +9,15 @@ public class SkullCrusherEnchantment extends GunEnchantment {
     }
 
     public int getMinPower(int level) {
-        return 0;
+        return 30;
     }
 
     public int getMaxPower(int level) {
-        return 1;
+        return 50;
     }
 
     public boolean isTreasure() {
-        return true;
+        return false;
     }
 
     public int getMaxLevel() {

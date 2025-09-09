@@ -82,6 +82,10 @@ public class BulletEntity extends ProjectileEntity {
         }
 
         this.setVelocity(velocity);
+        
+        if (this.getWorld().isClient() && !this.firstUpdate) {
+            this.getWorld().addParticle(ParticleReg.AIR_RING_PARTICLE, this.getX(), this.getY(), this.getZ(), 0, 0, 0);
+        }
 
         if (this.age >= this.getLifespan()) {
             this.discard();
@@ -102,7 +106,7 @@ public class BulletEntity extends ProjectileEntity {
 
         if (this.penetratingLevel > 0) {
             if (this.damageBlacklist == null) {
-                this.damageBlacklist = new IntOpenHashSet(4);
+                this.damageBlacklist = new IntOpenHashSet(3);
             }
             if (!this.damageBlacklist.add(entity.getId())) {
                 return;
@@ -160,10 +164,6 @@ public class BulletEntity extends ProjectileEntity {
             this.checkBlockCollision();
 
             this.setPosition(this.getPos().add(velocityStep));
-
-            if (this.getWorld().isClient() && !this.firstUpdate) {
-                this.getWorld().addParticle(ParticleReg.AIR_RING_PARTICLE, this.getX(), this.getY() + this.getHeight() / 2, this.getZ(), 0, 0, 0);
-            }
         }
     }
 

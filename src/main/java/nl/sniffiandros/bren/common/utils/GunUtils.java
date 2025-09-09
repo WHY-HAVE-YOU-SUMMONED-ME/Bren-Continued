@@ -1,5 +1,6 @@
 package nl.sniffiandros.bren.common.utils;
 
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.tag.convention.v1.ConventionalBlockTags;
 import net.minecraft.block.BlockState;
@@ -41,7 +42,7 @@ import nl.sniffiandros.bren.common.registry.custom.types.*;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Set;
 
 public class GunUtils {
     public static int fire(LivingEntity user) {
@@ -79,15 +80,14 @@ public class GunUtils {
             Vec3d down = position.get(2);
             Vec3d side = position.get(3);
             for (PlayerEntity p : world.getPlayers()) {
-                NetworkUtils.sendShotEffect(
-                    p,
-                    origin.add(
-                        side.multiply(isRevolver ? 0.7d : 0.4d)
-                        .add(down.multiply(isRevolver ? 0.25d : 0.1d))
-                    ),
-                    front,
-                    gunItem.ejectCasing()
+                Vec3d shootEffectPosition = isRevolver ? origin.subtract(front.multiply(0.3d)) : origin;
+
+                shootEffectPosition = shootEffectPosition.add(
+                    side.multiply(isRevolver ? 0.35d : 0.3d)
+                    .add(down.multiply(isRevolver ? 0.15d : 0.1d))
                 );
+
+                NetworkUtils.sendShootEffect(p, shootEffectPosition, front, gunItem.ejectCasing());
             }
 
             if (stack.getItem() instanceof RifleItem || MConfig.instantlyHit.get() && gunItem.bulletAmount() == 1) {
@@ -107,7 +107,7 @@ public class GunUtils {
                 for (int i = 0; i < gunItem.bulletAmount(); ++i) {
                     float x = (user.getRandom().nextFloat() - 0.5f) * 2 * gunItem.spread();
                     float y = (user.getRandom().nextFloat() - 0.5f) * 2 * gunItem.spread();
-                    GunUtils.spawnBullet(user, origin, front, stack, new Vec2f(x,y), gunItem.bulletLifespan());
+                    GunUtils.spawnBullet(user, origin, front, stack, new Vec2f(x, y), gunItem.bulletLifespan());
                 }
             }
         }
@@ -117,7 +117,7 @@ public class GunUtils {
 
             NetworkUtils.sendRecoil(player, (float)recoil);
 
-            int recoilTicks = GunUtils.getRecoilTicks(recoil * (isRevolver ? 0.75d : 1d));
+            int recoilTicks = GunUtils.getRecoilTicks(recoil);
             
             NetworkUtils.sendShootAnimation(player, (byte)recoilTicks);
             gunUser.setGunTicks(recoilTicks);
@@ -260,15 +260,17 @@ public class GunUtils {
         Vec3d rayStart = user.getCameraPosVec(1f);
         Vec3d rayDirection = user.getRotationVec(1f);
         Box box = user.getBoundingBox().stretch(rayDirection.multiply(128)).expand(1d, 1d, 1d);
+        Set<Integer> entityBlacklist = new IntOpenHashSet(3);
 
         for (; penetratingLevel >= 0;) {
             Vec3d rayEnd = rayStart.add(rayDirection.multiply(128));
             Vec3d hitOffset = null;
         
-            EntityHitResult entityHit = ProjectileUtil.raycast(user, rayStart, rayEnd, box, entity -> !entity.isSpectator() && entity.canHit(), 16384);
+            EntityHitResult entityHit = ProjectileUtil.raycast(user, rayStart, rayEnd, box, entity -> !entity.isSpectator() && entity.canHit() && !entityBlacklist.contains(entity.getId()), 16384);
 
             if (GunUtils.processBulletImpact(user, entityHit, headshotMultiplier)) {
                 hitOffset = entityHit.getPos().subtract(rayStart.add(rayDirection));
+                entityBlacklist.add(entityHit.getEntity().getId());
             } else {
                 BlockHitResult blockHit = user.getWorld().raycast(new RaycastContext(rayStart, rayEnd, ShapeType.OUTLINE, FluidHandling.NONE, user));
 

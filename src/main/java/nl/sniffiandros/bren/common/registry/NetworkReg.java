@@ -21,8 +21,8 @@ public class NetworkReg {
                 ItemStack stack = player.getMainHandStack();
 
                 if (stack.getItem() instanceof GunItem gunItem) {
+                    ((IGunUser)player).setReloadingGun(stack);
                     gunItem.onReload(player);
-                    ((IGunUser) player).setReloadingGun(stack);
                 } else if (stack.getItem() instanceof MagazineItem) {
                     GunUtils.fillMagazine(stack, player);
                 }

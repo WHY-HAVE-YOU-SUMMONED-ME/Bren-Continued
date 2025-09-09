@@ -13,7 +13,7 @@ public abstract class BrenEnchantment extends Enchantment {
 
     @Override
     public boolean isAcceptableItem(ItemStack stack) {
-        return super.isAcceptableItem(stack) || acceptsItem(stack.getItem());
+        return acceptsItem(stack.getItem());
     }
 
     public abstract boolean acceptsItem(Item item);

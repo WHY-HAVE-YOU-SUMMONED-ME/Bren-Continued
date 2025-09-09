@@ -6,7 +6,6 @@ import nl.sniffiandros.bren.common.utils.GunHelper;
 import java.util.function.Predicate;
 
 public interface IGunUser {
-
     void setReloadingGun(ItemStack reloadingGun);
 
     boolean isShooting();

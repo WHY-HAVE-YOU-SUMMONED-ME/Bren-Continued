@@ -9,11 +9,11 @@ public class SilencedEnchantment extends GunEnchantment {
     }
 
     public int getMinPower(int level) {
-        return 0;
+        return 1;
     }
 
     public int getMaxPower(int level) {
-        return 1;
+        return 50;
     }
 
     public boolean isTreasure() {

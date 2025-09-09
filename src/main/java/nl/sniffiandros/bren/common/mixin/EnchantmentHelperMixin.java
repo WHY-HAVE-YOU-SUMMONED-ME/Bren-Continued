@@ -14,13 +14,10 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(EnchantmentHelper.class)
 public abstract class EnchantmentHelperMixin {
     @Redirect(method = "getPossibleEntries", at = @At(value = "INVOKE", target = "Lnet/minecraft/enchantment/EnchantmentTarget;isAcceptableItem(Lnet/minecraft/item/Item;)Z"))
-    private boolean modifyTooltipContents(EnchantmentTarget target, Item item, @Local Enchantment enchantment) {
-        boolean returnValue = target.isAcceptableItem(item);
-
+    private static boolean modifyEnchantmentAcceptance(EnchantmentTarget target, Item item, @Local Enchantment enchantment) {
         if (enchantment instanceof BrenEnchantment brenEnchantment) {
-            returnValue |= brenEnchantment.acceptsItem(item);
+            return brenEnchantment.acceptsItem(item);
         }
-
-        return returnValue;
+        return target.isAcceptableItem(item);
     }
 }

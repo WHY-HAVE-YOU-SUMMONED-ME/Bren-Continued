@@ -4,9 +4,9 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.MathHelper;
 
 public class WeaponTickHolder {
-    private static int ticksLeft;
-    private static int lastTicks;
-    private static int ticks;
+    private static int ticksLeft = 0;
+    private static int lastTicks = 0;
+    private static int ticks = 1;
 
     public static void tick(MinecraftClient client) {
         if (!client.isPaused()) {

@@ -23,7 +23,9 @@ import nl.sniffiandros.bren.common.events.MEvents;
 import nl.sniffiandros.bren.common.registry.AttributeReg;
 import nl.sniffiandros.bren.common.registry.custom.types.GunItem;
 import nl.sniffiandros.bren.common.utils.GunHelper;
+import nl.sniffiandros.bren.common.utils.GunHelper.GunStates;
 import nl.sniffiandros.bren.common.utils.GunUtils;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -48,6 +50,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IGunUser
 
     public PlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
         super(EntityType.PLAYER, world);
+        this.setGunState(GunStates.NORMAL);
     }
 
     @Override
@@ -75,18 +78,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IGunUser
 
         PlayerEntity player = (PlayerEntity)(Object)this;
 
-        ItemCooldownManager cooldownManager = this.getItemCooldownManager();
-
         if (this.getGunState().equals(GunHelper.GunStates.RELOADING) && this.getMainHandStack() != this.reloadingGun) {
             GunItem.startCoolingDown(player, 0, false, this.getMainHandStack().getItem().getClass());
             this.setGunState(GunHelper.GunStates.NORMAL);
             this.setCanReload(true);
-            return;
-        }
-
-        if (this.getGunState().equals(GunHelper.GunStates.NORMAL) && !this.reloadingGun.isEmpty()) {
-            cooldownManager.remove(this.reloadingGun.getItem());
-            this.reloadingGun = ItemStack.EMPTY;
             return;
         }
 

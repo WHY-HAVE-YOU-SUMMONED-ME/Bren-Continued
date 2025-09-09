@@ -113,4 +113,14 @@ public class MagazineItem extends Item {
         }
         return 0;
     }
+
+    @Override
+    public boolean isEnchantable(ItemStack stack) {
+        return stack.getCount() == 1;
+    }
+
+    @Override
+    public int getEnchantability() {
+        return 10;
+    }
 }

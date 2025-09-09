@@ -12,7 +12,7 @@ import net.minecraft.util.math.Vec3d;
 import nl.sniffiandros.bren.common.registry.NetworkReg;
 
 public class NetworkUtils {
-    public static void sendShotEffect(PlayerEntity player, Vec3d origin, Vec3d direction, boolean ejectCasing) {
+    public static void sendShootEffect(PlayerEntity player, Vec3d origin, Vec3d direction, boolean ejectCasing) {
         PacketByteBuf buf = PacketByteBufs.create();
 
         buf.writeFloat((float) origin.x);
