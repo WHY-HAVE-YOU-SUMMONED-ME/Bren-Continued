@@ -30,19 +30,22 @@ public class BulletEntity extends ProjectileEntity {
     private static final TrackedData<Integer> LIFESPAN = DataTracker.registerData(BulletEntity.class, TrackedDataHandlerRegistry.INTEGER);
     private int penetratingLevel;
     private int collisionSteps;
+    private float headshotMultiplier;
     private IntOpenHashSet damageBlacklist;
 
     public BulletEntity(EntityType<? extends BulletEntity> entityType, World world) {
         super(entityType, world);
     }
 
-    public BulletEntity(World world, int lifespan, LivingEntity owner, int penetratingLevel) {
+    public BulletEntity(World world, int lifespan, LivingEntity owner, int penetratingLevel, float headshotMultiplier) {
         super(Bren.BULLET, world);
         this.penetratingLevel = penetratingLevel;
+        this.headshotMultiplier = headshotMultiplier;
         this.collisionSteps = (int)Math.ceil(MConfig.bulletCollisionSteps.get() * (1 + (penetratingLevel / 3f)));
         this.setLifespan(lifespan);
         this.setNoGravity(true);
         this.setOwner(owner);
+        this.setPosition(this.getPos().subtract(0f, this.getHeight() / 2f, 0f));
     }
 
     protected void setLifespan(int lifespan) {
@@ -69,9 +72,6 @@ public class BulletEntity extends ProjectileEntity {
         if (this.isTouchingWater()) {
             h = 0.8f;
         } else {
-            if (this.getWorld().isClient()) {
-                this.getWorld().addParticle(ParticleReg.AIR_RING_PARTICLE, this.getX(), this.getY() + this.getHeight() / 2, this.getZ(), 0, 0, 0);
-            }
             h = 0.99f;
         }
 
@@ -85,7 +85,6 @@ public class BulletEntity extends ProjectileEntity {
 
         if (this.age >= this.getLifespan()) {
             this.discard();
-            return;
         }
     }
 
@@ -117,7 +116,7 @@ public class BulletEntity extends ProjectileEntity {
     @Override
     protected void onBlockHit(BlockHitResult blockHitResult) {
         super.onBlockHit(blockHitResult);
-        if (GunUtils.processBulletImpact(this.getOwner(), blockHitResult)) {
+        if (GunUtils.processBulletImpact(this.getOwner(), blockHitResult, headshotMultiplier)) {
             this.tryDiscarding();
         }
     }
@@ -161,19 +160,23 @@ public class BulletEntity extends ProjectileEntity {
             this.checkBlockCollision();
 
             this.setPosition(this.getPos().add(velocityStep));
+
+            if (this.getWorld().isClient() && !this.firstUpdate) {
+                this.getWorld().addParticle(ParticleReg.AIR_RING_PARTICLE, this.getX(), this.getY() + this.getHeight() / 2, this.getZ(), 0, 0, 0);
+            }
         }
     }
 
     private void damageEntity(Entity entity) {
         Box boundingBox = entity.getBoundingBox();
         
-        Vec3d position = this.getPos().add(0d, this.getHeight() / 2d, 0d);
+        Vec3d position = this.getPos();
         Optional<Vec3d> hitPosition = boundingBox.raycast(position, position.add(this.getVelocity()));
 
         if (hitPosition.isPresent()) {
-            GunUtils.processBulletImpact(getOwner(), new EntityHitResult(entity, hitPosition.get()));
+            GunUtils.processBulletImpact(getOwner(), new EntityHitResult(entity, hitPosition.get()), headshotMultiplier);
         } else {
-            GunUtils.processBulletImpact(getOwner(), new EntityHitResult(entity, position));
+            GunUtils.processBulletImpact(getOwner(), new EntityHitResult(entity, position), headshotMultiplier);
         }
     }
 }

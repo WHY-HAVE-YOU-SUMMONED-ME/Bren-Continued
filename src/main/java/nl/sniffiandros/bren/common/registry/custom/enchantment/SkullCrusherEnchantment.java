@@ -1,10 +1,10 @@
 package nl.sniffiandros.bren.common.registry.custom.enchantment;
 
 import net.minecraft.item.Item;
-import nl.sniffiandros.bren.common.registry.custom.types.BulletOnlyGun;
+import nl.sniffiandros.bren.common.registry.custom.types.RevolverItem;
 
-public class SilencedEnchantment extends GunEnchantment {
-    public SilencedEnchantment(Rarity weight) {
+public class SkullCrusherEnchantment extends GunEnchantment {
+    public SkullCrusherEnchantment(Rarity weight) {
         super(weight);
     }
 
@@ -17,7 +17,7 @@ public class SilencedEnchantment extends GunEnchantment {
     }
 
     public boolean isTreasure() {
-        return false;
+        return true;
     }
 
     public int getMaxLevel() {
@@ -26,6 +26,6 @@ public class SilencedEnchantment extends GunEnchantment {
 
     @Override
     public boolean acceptsItem(Item item) {
-        return super.acceptsItem(item) && !(item instanceof BulletOnlyGun);
+        return super.acceptsItem(item) && !(item instanceof RevolverItem);
     }
 }

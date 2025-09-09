@@ -20,7 +20,8 @@ public class TradeRandomGunEnchantmentFactory implements TradeOffers.Factory {
             EnchantmentReg.OVERFLOW,
             EnchantmentReg.PENETRATING,
             EnchantmentReg.SILENCED,
-            EnchantmentReg.STEADY_HANDS
+            EnchantmentReg.STEADY_HANDS,
+            EnchantmentReg.SKULL_CRUSHER
     );
 
     private final int price;

@@ -14,6 +14,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MinecraftClientMixin {
     @Inject(at = @At("TAIL"), method = "render")
     private void render(boolean tick, CallbackInfo ci) {
-        RecoilSys.tick();
+        RecoilSys.render();
     }
 }

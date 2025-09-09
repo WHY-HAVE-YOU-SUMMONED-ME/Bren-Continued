@@ -1,5 +1,6 @@
 package nl.sniffiandros.bren.common.registry.custom.types;
 
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.ItemCooldownManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -8,12 +9,20 @@ import net.minecraft.item.ToolMaterial;
 import net.minecraft.world.World;
 import nl.sniffiandros.bren.common.Bren;
 import nl.sniffiandros.bren.common.entity.IGunUser;
+import nl.sniffiandros.bren.common.registry.EnchantmentReg;
 import nl.sniffiandros.bren.common.registry.ItemReg;
 import nl.sniffiandros.bren.common.utils.GunHelper;
 
-public class BulletOnlyGun extends GunItem{
-    public BulletOnlyGun(Settings settings, ToolMaterial material, GunProperties gunProperties) {
+public class BulletOnlyGun extends GunItem {
+    public int capacity;
+
+    public BulletOnlyGun(Settings settings, ToolMaterial material, GunProperties gunProperties, int capacity) {
         super(settings, material, gunProperties);
+        this.capacity = capacity;
+    }
+
+    public int getMaxCapacity(ItemStack stack) {
+        return Math.round(capacity * Math.max(1, 1 + (float)EnchantmentHelper.getLevel(EnchantmentReg.OVERFLOW, stack) / 4));
     }
 
     @Override
@@ -43,12 +52,7 @@ public class BulletOnlyGun extends GunItem{
         ItemCooldownManager cooldownManager = player.getItemCooldownManager();
 
         if (player instanceof IGunUser gunUser && !cooldownManager.isCoolingDown(stack.getItem())) {
-
             ItemStack bullets = Bren.getItemFromPlayer(player, compatibleBullet());
-
-            gunUser.setGunState(GunHelper.GunStates.NORMAL);
-            gunUser.setCanReload(true);
-
             if (bullets.isEmpty() || getContents(stack) >= getMaxCapacity(stack)) {
                 return;
             }
@@ -56,9 +60,8 @@ public class BulletOnlyGun extends GunItem{
             if (!gunUser.canReload()) {
                 return;
             }
-            gunUser.setCanReload(false);
-            gunUser.setGunState(GunHelper.GunStates.RELOADING);
-            cooldownManager.set(stack.getItem(), this.reloadSpeed());
+
+            startCoolingDown(player, this.reloadSpeed(), true, this.getClass());
             onInsert(stack, player);
         }
     }
@@ -73,14 +76,11 @@ public class BulletOnlyGun extends GunItem{
         return ItemReg.BULLET;
     }
 
-
     @Override
     public void reloadTick(ItemStack stack, World world, PlayerEntity player, IGunUser gunUser) {
-
         ItemCooldownManager cooldownManager = player.getItemCooldownManager();
 
         if (!cooldownManager.isCoolingDown(stack.getItem()) && getContents(stack) < getMaxCapacity(stack)) {
-
             ItemStack bullets = Bren.getItemFromPlayer(player, compatibleBullet());
 
             bullets.decrement(1);

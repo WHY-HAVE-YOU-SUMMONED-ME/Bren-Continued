@@ -5,11 +5,11 @@
 	"name": "Bren: Continued",
 	"description": "Unofficial continuation fork of Bren",
 	"authors": [
-		"Sniffiandros!"
+		"Sniffiandros!",
+		"Fork author: WHY-HAVE-YOU-SUMMONED-ME"
 	],
 	"contributors": [
-		"B1n-ry",
-		"WHY-HAVE-YOU-SUMMONED-ME"
+		"B1n-ry"
 	],
 	"contact": {
 		"homepage": "https://github.com/WHY-HAVE-YOU-SUMMONED-ME/bren",
@@ -17,7 +17,7 @@
 		"modrinth": "https://modrinth.com/mod/bren",
 		"og-sources": "https://github.com/SniffVillage/bren"
 	},
-	"license": "ARR",
+	"license": "MIT",
 	"icon": "assets/bren/icon.png",
 	"environment": "*",
 	"entrypoints": {

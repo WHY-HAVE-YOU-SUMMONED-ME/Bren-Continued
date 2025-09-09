@@ -9,7 +9,6 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.player.ItemCooldownManager;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
@@ -63,7 +62,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IGunUser
 
     @Override
     public boolean canShoot(Predicate<ItemStack> predicate) {
-        return predicate.test(this.getMainHandStack());
+        return predicate.test(this.getMainHandStack()) && !this.isDead();
     }
 
     @Override
@@ -72,26 +71,27 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IGunUser
     }
 
     public void reloadTick() {
-
         if (this.getWorld().isClient()) return;
 
         PlayerEntity player = (PlayerEntity)(Object)this;
 
         ItemCooldownManager cooldownManager = this.getItemCooldownManager();
 
-        if (this.getMainHandStack().getItem() instanceof GunItem gunItem && this.getGunState().equals(GunHelper.GunStates.RELOADING)) {
-            gunItem.reloadTick(this.reloadingGun, this.getWorld(), player, (IGunUser) player);
-        }
-
         if (this.getGunState().equals(GunHelper.GunStates.RELOADING) && this.getMainHandStack() != this.reloadingGun) {
-            cooldownManager.remove(this.reloadingGun.getItem());
+            GunItem.startCoolingDown(player, 0, false, this.getMainHandStack().getItem().getClass());
             this.setGunState(GunHelper.GunStates.NORMAL);
             this.setCanReload(true);
+            return;
         }
 
         if (this.getGunState().equals(GunHelper.GunStates.NORMAL) && !this.reloadingGun.isEmpty()) {
             cooldownManager.remove(this.reloadingGun.getItem());
             this.reloadingGun = ItemStack.EMPTY;
+            return;
+        }
+
+        if (this.getMainHandStack().getItem() instanceof GunItem gunItem && this.getGunState().equals(GunHelper.GunStates.RELOADING)) {
+            gunItem.reloadTick(this.reloadingGun, this.getWorld(), player, (IGunUser)player);
         }
     }
 
@@ -107,27 +107,15 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IGunUser
 
             return !c.isCoolingDown(stack.getItem()) && b;
         })) && this.isShooting()) {
-            this.setGunTicks(16);
-
             int fireRate = GunUtils.fire(this);
             if (fireRate == 0) return;
 
-            PlayerEntity player = (PlayerEntity) (Object) this;
+            PlayerEntity player = (PlayerEntity)(Object)this;
 
             GunItem.startCoolingDown(player, fireRate, false, this.getMainHandStack().getItem().getClass());
 
             MEvents.GUN_FIRED_EVENT.invoker().gunFired(player, this.getMainHandStack());
-
-            GunUtils.sendAnimationPacket(player);
         }
-    }
-
-    @Inject(at = @At("RETURN"), method = "createPlayerAttributes()Lnet/minecraft/entity/attribute/DefaultAttributeContainer$Builder;")
-    private static void createPlayerAttributes(CallbackInfoReturnable<DefaultAttributeContainer.Builder> cir) {
-        cir.getReturnValue()
-                .add(AttributeReg.RANGED_DAMAGE, 0d)
-                .add(AttributeReg.FIRE_RATE, 0d)
-                .add(AttributeReg.RECOIL, 0d);
     }
 
     @Override
@@ -172,7 +160,6 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IGunUser
 
     @Inject(at = @At("TAIL"), method = "tick")
     public void tick(CallbackInfo ci) {
-
         if (this.lastEquippedGun.isEmpty() && !this.dataTracker.get(LAST_GUN_NBT).isEmpty() && !this.lastGunLoaded) {
             this.buildLastGun(this.dataTracker.get(LAST_GUN_NBT));
             this.lastGunLoaded = true;

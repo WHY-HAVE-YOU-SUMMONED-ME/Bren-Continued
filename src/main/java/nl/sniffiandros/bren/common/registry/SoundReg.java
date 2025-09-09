@@ -22,6 +22,7 @@ public class SoundReg {
     public static SoundEvent ITEM_REVOLVER_SHOOT = register("item.revolver.shoot");
     public static SoundEvent ITEM_REVOLVER_BULLET_INSERT = register("item.revolver.bullet_insert");
     public static SoundEvent ITEM_REVOLVER_RELOAD = register("item.revolver.reload");
+    public static SoundEvent ITEM_REVOLVER_SPINNING = register("item.revolver.spinning");
     public static SoundEvent PARTICLE_CASING_BOUNCE = register("particle.casing.bounce");
 
     public static SoundEvent ENTITY_VILLAGER_WORK_GUNSMITH = register("entity.villager.work_gunsmith");

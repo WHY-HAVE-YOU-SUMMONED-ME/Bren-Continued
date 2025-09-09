@@ -1,6 +1,5 @@
 package nl.sniffiandros.bren.common.registry.custom.types;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.ItemCooldownManager;
 import net.minecraft.entity.player.PlayerEntity;
@@ -10,14 +9,11 @@ import net.minecraft.item.ToolMaterial;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.tag.TagKey;
-import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import nl.sniffiandros.bren.common.Bren;
 import nl.sniffiandros.bren.common.entity.IGunUser;
 import nl.sniffiandros.bren.common.registry.SoundReg;
-import nl.sniffiandros.bren.common.registry.custom.ColorableMagazineItem;
-import nl.sniffiandros.bren.common.registry.custom.MagazineItem;
 import nl.sniffiandros.bren.common.utils.GunHelper;
 
 public class GunWithMagItem extends GunItem {
@@ -44,12 +40,12 @@ public class GunWithMagItem extends GunItem {
                 if (!gunUser.canReload()) {
                     return;
                 }
-                GunItem.startCoolingDown(player, 20, true, null);
+                GunItem.startCoolingDown(player, 20, true, gunItem.getClass());
             }
         }
     }
 
-    public static void putMagazine(ItemStack stack, ItemStack mag) {
+    public static void putMagazine(ItemStack stack, ItemStack mag, PlayerEntity player) {
         if (!(mag.getItem() instanceof MagazineItem)) {
             return;
         }
@@ -188,67 +184,18 @@ public class GunWithMagItem extends GunItem {
 
         if (!cooldownManager.isCoolingDown(stack.getItem())) {
             if (GunWithMagItem.hasMagazine(stack)) {
-
                 GunWithMagItem.unloadMagazine(stack, player);
-
-                world.playSound(null,
-                        player.getX(),
-                        player.getY(),
-                        player.getZ(),
-                        SoundReg.ITEM_MAGAZINE_REMOVE,
-                        SoundCategory.PLAYERS, 1.0F, 1.0F - (player.getRandom().nextFloat() - 0.5F) / 4);
-
+                playSound(player, SoundReg.ITEM_MAGAZINE_REMOVE);
             } else {
-                ItemStack mag = Bren.getMagazineFromPlayer(player, ((GunWithMagItem) stack.getItem()).compatibleMagazines());
-                GunWithMagItem.putMagazine(stack, mag);
+                ItemStack mag = Bren.getMagazineFromPlayer(player, ((GunWithMagItem)stack.getItem()).compatibleMagazines());
+                GunWithMagItem.putMagazine(stack, mag, player);
                 mag.decrement(1);
             }
             gunUser.setGunState(GunHelper.GunStates.NORMAL);
             gunUser.setCanReload(true);
-        } else if (cooldownManager.getCooldownProgress(stack.getItem(),1) == 0.75F && !GunWithMagItem.hasMagazine(stack)) {
-            world.playSound(null,
-                    player.getX(),
-                    player.getY(),
-                    player.getZ(),
-                    SoundReg.ITEM_MAGAZINE_INSERT,
-                    SoundCategory.PLAYERS, 1.0F, 1.0F - (player.getRandom().nextFloat() - 0.5F) / 4);
+        } else if (cooldownManager.getCooldownProgress(stack.getItem(), 1) == 0.75f && !GunWithMagItem.hasMagazine(stack)) {
+            playSound(player, SoundReg.ITEM_MAGAZINE_INSERT);
         }
-
-    }
-
-    @Override
-    public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
-        if (entity instanceof IGunUser gunUser && entity instanceof PlayerEntity player) {
-            if (selected) {
-                if (gunUser.getGunState().equals(GunHelper.GunStates.RELOADING)) {
-                    if (!cooldownManager.isCoolingDown(stack.getItem())) {
-                        if (GunWithMagItem.hasMagazine(stack)) {
-                            GunWithMagItem.unloadMagazine(stack, player);
-                            world.playSound(null,
-                                    player.getX(),
-                                    player.getY(),
-                                    player.getZ(),
-                                    SoundReg.ITEM_MAGAZINE_REMOVE,
-                                    SoundCategory.PLAYERS, 3.0F, 1.0F - (player.getRandom().nextFloat() - 0.5F) / 4);
-                        } else {
-                            ItemStack mag = Bren.getMagazineFromPlayer(player, ((GunWithMagItem) stack.getItem()).compatibleMagazines());
-                            GunWithMagItem.putMagazine(stack, mag);
-                            mag.decrement(1);
-                        }
-                        gunUser.setGunState(GunHelper.GunStates.NORMAL);
-                        gunUser.setCanReload(true);
-                    } else if (cooldownManager.getCooldownProgress(stack.getItem(),1) == 0.75F && !GunWithMagItem.hasMagazine(stack)) {
-                        world.playSound(null,
-                                player.getX(),
-                                player.getY(),
-                                player.getZ(),
-                                SoundReg.ITEM_MAGAZINE_INSERT,
-                                SoundCategory.PLAYERS, 3.0F, 1.0F - (player.getRandom().nextFloat() - 0.5F) / 4);
-                    }
-                }
-            }
-        }
-        super.inventoryTick(stack, world, entity, slot, selected);
     }
 
     public TagKey<Item> compatibleMagazines() {

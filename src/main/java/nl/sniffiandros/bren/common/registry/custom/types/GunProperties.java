@@ -18,7 +18,7 @@ public class GunProperties {
     }
 
     public GunProperties fireRate(int rate) {
-        this.fireRate = rate;
+        this.fireRate = (int)Math.ceil(rate * MConfig.fireRateMultiplier.get());
         return this;
     }
 

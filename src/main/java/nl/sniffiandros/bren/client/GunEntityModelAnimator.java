@@ -1,5 +1,6 @@
 package nl.sniffiandros.bren.client;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -10,12 +11,12 @@ import nl.sniffiandros.bren.common.utils.GunHelper;
 public class GunEntityModelAnimator {
     public static void oneArm(LivingEntity livingEntity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch,
                               ModelPart leftArm, ModelPart rightArm, ModelPart head, float gunAmount) {
-        if (livingEntity instanceof IGunUser gunUser && !livingEntity.isSleeping()) {
+        if (livingEntity instanceof IGunUser && !livingEntity.isSleeping()) {
             boolean isLeftHanded = livingEntity.getMainArm().equals(Arm.LEFT);
 
-            float h_pi = 1.570796F;
-            float p = headPitch * 0.01745329F;
-            float y = netHeadYaw * 0.01745329F;
+            float h_pi = 1.570796f;
+            float p = headPitch * 0.01745329f;
+            float y = netHeadYaw * 0.01745329f;
 
             ModelPart arm = isLeftHanded ? leftArm : rightArm;
 
@@ -32,10 +33,8 @@ public class GunEntityModelAnimator {
             boolean isLeftHanded = livingEntity.getMainArm().equals(Arm.LEFT);
             ModelPart arm = isLeftHanded ? leftArm : rightArm;
 
-            float rotX = 0;
-            float rotY = 0;
             float f = 0;
-            float f1 = 1.570796F;
+            float f1 = 1.570796f;
 
             if (livingEntity instanceof PlayerEntity player) {
                 MinecraftClient client = MinecraftClient.getInstance();
@@ -43,16 +42,18 @@ public class GunEntityModelAnimator {
                 f = player.getItemCooldownManager().getCooldownProgress(player.getMainHandStack().getItem(), client.getTickDelta());
             }
 
-            float sin = reloading ? (float) Math.sin((f*2 - 0.5)*Math.PI) * 0.5F + 0.5F : 0;
+            float p = headPitch * 0.01745329f;
+            float y = netHeadYaw * 0.01745329f;
 
-            rotY = (float) (Math.cos(f*15)*0.08726646);
-            rotX = (float) (Math.sin(f*15)*0.08726646) - sin;
+            arm.pitch = p - f1;
+            arm.yaw = y;
 
-            float p = headPitch * 0.01745329F;
-            float y = netHeadYaw * 0.01745329F;
+            if (reloading) {
+                float sin = (float)Math.sin((f * 2 - 0.5) * Math.PI) * 0.5f + 0.5f;
 
-            arm.pitch = p - f1 + rotX;
-            arm.yaw = y + rotY;
+                arm.pitch += (float)(Math.sin(f * 15f) * 0.08726646d) - sin;
+                arm.yaw += (float)(Math.sin(f * 15f) * 0.08726646d);
+            }
         }
     }
 
@@ -76,7 +77,7 @@ public class GunEntityModelAnimator {
             float p = headPitch * 0.01745329f;
             float y = netHeadYaw * 0.01745329f;
 
-            float f2 = f1*kick/2;
+            float f2 = f1 * kick / 2;
 
             float fr = ((float) Math.sin((gunAmount * 2 - 0.5) * Math.PI) * 0.5f + 0.5f);
             float f3 = reloading ? fr / 4 : f2;

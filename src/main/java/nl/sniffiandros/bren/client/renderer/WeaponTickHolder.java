@@ -4,21 +4,22 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.MathHelper;
 
 public class WeaponTickHolder {
-    private static int ticks;
+    private static int ticksLeft;
     private static int lastTicks;
+    private static int ticks;
 
     public static void tick(MinecraftClient client) {
         if (!client.isPaused()) {
-            lastTicks = ticks;
-            ticks = Math.max(0, --ticks);
+            lastTicks = ticksLeft;
+            ticksLeft = Math.max(0, --ticksLeft);
         }
     }
 
     public static void setTicks(int t) {
-        ticks = t;
+        ticks = ticksLeft = t;
     }
 
-    public static float getAnimationTicks(float tickDelta) {
-        return MathHelper.lerp(tickDelta, (float)lastTicks, (float)ticks);
+    public static float getAnimationTimeLeft(float tickDelta) {
+        return MathHelper.lerp(tickDelta, (float)lastTicks, (float)ticksLeft) / ticks;
     }
 }

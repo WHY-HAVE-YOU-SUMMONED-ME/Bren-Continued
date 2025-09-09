@@ -2,31 +2,31 @@ package nl.sniffiandros.bren.common.registry.custom.types;
 
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.ItemCooldownManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ToolMaterial;
-import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.world.World;
 import nl.sniffiandros.bren.common.entity.IGunUser;
-import nl.sniffiandros.bren.common.registry.EnchantmentReg;
 import nl.sniffiandros.bren.common.registry.SoundReg;
 import nl.sniffiandros.bren.common.registry.custom.PoseType;
 import nl.sniffiandros.bren.common.utils.GunHelper;
 
 public class RevolverItem extends BulletOnlyGun {
-
-    public RevolverItem(Settings settings, ToolMaterial material, GunProperties gunProperties) {
-        super(settings, material, gunProperties);
-    }
-
-    @Override
-    public int getMaxCapacity(ItemStack stack) {
-        return 6 * Math.round(Math.max(1, EnchantmentHelper.getLevel(EnchantmentReg.OVERFLOW, stack)/2));
+    public RevolverItem(Settings settings, ToolMaterial material, float damage) {
+        super(
+            settings,
+            material,
+            new GunProperties()
+                .rangedDamage(damage)
+                .fireRate(6)
+                .recoil(6f)
+                .shootSound(SoundReg.ITEM_REVOLVER_SHOOT, null),
+            6
+        );
     }
 
     @Override
@@ -46,24 +46,21 @@ public class RevolverItem extends BulletOnlyGun {
 
     @Override
     public boolean applyCustomMatrix(LivingEntity entity, GunHelper.GunStates state, MatrixStack matrices, ItemStack stack, float cooldownProgress, ModelTransformationMode renderMode, boolean leftHanded) {
-        if (entity instanceof IGunUser gunUser && cooldownProgress > 0) {
-
-            boolean reloading = gunUser.getGunState().equals(GunHelper.GunStates.RELOADING);
-
-            float sin = (float) Math.sin((cooldownProgress * 2 - 0.5) * Math.PI) * 0.5F + 0.5F;
-
+        if (entity instanceof IGunUser gunUser && cooldownProgress > 0 && gunUser.getGunState().equals(GunHelper.GunStates.RELOADING)) {
+            float sin = (float)Math.sin(((cooldownProgress * 2) - 0.5) * Math.PI) * 0.5f + 0.5f;
+            
             if (renderMode.isFirstPerson()) {
-                matrices.translate(0, 0.2, 0);
+                matrices.multiply(RotationAxis.POSITIVE_X.rotation(cooldownProgress * 15f));
+                return true;
+            } else {
+                matrices.translate(0, sin / 2, 0);
+
+                matrices.multiply(RotationAxis.NEGATIVE_Z.rotationDegrees((leftHanded ? 90 + 25 : 65) + (sin * 180)));
+                matrices.multiply(RotationAxis.NEGATIVE_X.rotation(cooldownProgress * 15));
             }
-
-            matrices.translate(0, (reloading ? sin / 2 : 0), 0);
-
-            matrices.multiply(RotationAxis.NEGATIVE_Z.rotationDegrees(leftHanded ? 90 + 25 : 65 +
-                    (reloading && !renderMode.isFirstPerson() ? sin * 180 : 0)));
-            matrices.multiply(RotationAxis.NEGATIVE_X.rotation(cooldownProgress * 15));
         }
 
-        return true;
+        return false;
     }
 
     @Override
@@ -78,12 +75,7 @@ public class RevolverItem extends BulletOnlyGun {
 
     @Override
     protected void afterInserted(ItemStack stack, PlayerEntity player) {
-        player.getWorld().playSound(null,
-                player.getX(),
-                player.getY(),
-                player.getZ(),
-                SoundReg.ITEM_REVOLVER_RELOAD,
-                SoundCategory.PLAYERS, 1.0F, 1.0F - (player.getRandom().nextFloat() - 0.5F) / 4);
+        playSound(player, SoundReg.ITEM_REVOLVER_RELOAD);
     }
 
     @Override
@@ -95,20 +87,13 @@ public class RevolverItem extends BulletOnlyGun {
             if (selected) {
                 float f = cooldownManager.getCooldownProgress(stack.getItem(), 1);
 
-                if (f == .5F && gunUser.getGunState() == GunHelper.GunStates.RELOADING) {
-                    player.getWorld().playSound(null,
-                            player.getX(),
-                            player.getY(),
-                            player.getZ(),
-                            SoundReg.ITEM_REVOLVER_BULLET_INSERT,
-                            SoundCategory.PLAYERS, 1.0F, 1.0F - (player.getRandom().nextFloat() - 0.5F) / 4);
-                } else if (player.age % 5 == 0 && cooldownManager.isCoolingDown(stack.getItem())) {
-                    player.getWorld().playSound(null,
-                            player.getX(),
-                            player.getY(),
-                            player.getZ(),
-                            SoundReg.ITEM_REVOLVER_SPINNING,
-                            SoundCategory.PLAYERS, 1.0F, 1.0F - (player.getRandom().nextFloat() - 0.5F) / 4);
+                if (gunUser.getGunState() == GunHelper.GunStates.RELOADING) {
+                    if (f == 0.5f) {
+                        playSound(player, SoundReg.ITEM_REVOLVER_BULLET_INSERT);
+                    }
+                    if (player.age % 5 == 0) {
+                        playSound(player, SoundReg.ITEM_REVOLVER_SPINNING);
+                    }
                 }
             }
         }

@@ -6,7 +6,7 @@ import net.minecraft.item.ItemStack;
 import nl.sniffiandros.bren.common.Bren;
 import nl.sniffiandros.bren.common.registry.EnchantmentReg;
 import nl.sniffiandros.bren.common.registry.ItemReg;
-import nl.sniffiandros.bren.common.registry.custom.MagazineItem;
+import nl.sniffiandros.bren.common.registry.custom.types.MagazineItem;
 
 public class AutofillEnchantment extends MagazineEnchantment {
     public AutofillEnchantment(Rarity weight) {

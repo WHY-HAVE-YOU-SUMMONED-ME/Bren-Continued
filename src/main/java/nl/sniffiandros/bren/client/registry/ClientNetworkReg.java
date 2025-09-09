@@ -10,15 +10,15 @@ import nl.sniffiandros.bren.client.renderer.WeaponTickHolder;
 import nl.sniffiandros.bren.common.config.MConfig;
 import nl.sniffiandros.bren.common.registry.NetworkReg;
 import nl.sniffiandros.bren.common.registry.SoundReg;
-import nl.sniffiandros.bren.common.registry.custom.GunItem;
+import nl.sniffiandros.bren.common.registry.custom.types.GunItem;
 
 public class ClientNetworkReg {
-
     public static void shootAnimationPacket() {
         ClientPlayNetworking.registerGlobalReceiver(NetworkReg.SHOOT_ANIMATION_PACKET_ID, (client, handler, buf, responseSender) -> {
-
+            byte animationTicks = buf.readByte();
+            
             client.execute(() -> {
-                WeaponTickHolder.setTicks(16);
+                WeaponTickHolder.setTicks(animationTicks);
             });
         });
     }
@@ -28,7 +28,7 @@ public class ClientNetworkReg {
             float recoil = buf.readFloat();
 
             client.execute(() -> {
-                if (client.player ==  null) {return;}
+                if (client.player == null) return;
                 RecoilSys.shotEvent(client.player, recoil);
             });
         });
@@ -58,6 +58,8 @@ public class ClientNetworkReg {
             float directionY = buf.readFloat();
             float directionZ = buf.readFloat();
 
+            boolean ejectCasing = buf.readBoolean();
+
             client.execute(() -> {
                 Vec3d origin = new Vec3d(originX, originY, originZ);
                 Vec3d direction = new Vec3d(directionX, directionY, directionZ);
@@ -65,7 +67,7 @@ public class ClientNetworkReg {
                 World world = client.world;
                 if (world != null) {
                     GunItem.shotParticles(client.world, origin, direction, world.getRandom());
-                    if (MConfig.spawnCasingParticles.get()) {
+                    if (MConfig.spawnCasingParticles.get() && ejectCasing) {
                         GunItem.ejectCasingParticle(client.world, origin, direction, world.getRandom());
                     }
                 }

@@ -11,19 +11,18 @@ import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import nl.sniffiandros.bren.common.Bren;
 import nl.sniffiandros.bren.common.entity.IGunUser;
-import nl.sniffiandros.bren.common.registry.AttributeReg;
-import nl.sniffiandros.bren.common.registry.ParticleReg;
+import nl.sniffiandros.bren.common.registry.*;
 import nl.sniffiandros.bren.common.registry.custom.PoseType;
 import nl.sniffiandros.bren.common.utils.GunHelper;
 import org.jetbrains.annotations.Nullable;
@@ -62,14 +61,6 @@ public class GunItem extends ToolItem implements Vanishable {
     public boolean ejectCasing() {return true;}
 
     public boolean renderOnBack() {return true;}
-
-    @Override
-    public Multimap<EntityAttribute, EntityAttributeModifier> getAttributeModifiers(EquipmentSlot slot) {
-        if (slot == EquipmentSlot.MAINHAND) {
-            return this.attributeModifiers;
-        }
-        return super.getAttributeModifiers(slot);
-    }
 
     public PoseType holdingPose() {
         return PoseType.TWO_ARMS;
@@ -157,6 +148,16 @@ public class GunItem extends ToolItem implements Vanishable {
                 }
             }
         } 
+    }
+
+    public static void playSound(PlayerEntity player, SoundEvent sound) {
+        player.getWorld().playSound(null,
+                player.getX(),
+                player.getY(),
+                player.getZ(),
+                sound,
+                SoundCategory.PLAYERS, 1f, 1f - (player.getRandom().nextFloat() - 0.5f) / 4
+        );
     }
 
     public int bulletLifespan() {

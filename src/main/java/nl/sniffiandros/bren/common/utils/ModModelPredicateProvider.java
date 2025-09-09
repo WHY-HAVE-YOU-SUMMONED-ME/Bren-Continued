@@ -5,7 +5,7 @@ import net.minecraft.item.Item;
 import net.minecraft.util.Identifier;
 import nl.sniffiandros.bren.common.registry.ItemReg;
 import nl.sniffiandros.bren.common.registry.custom.types.GunWithMagItem;
-import nl.sniffiandros.bren.common.registry.custom.MagazineItem;
+import nl.sniffiandros.bren.common.registry.custom.types.MagazineItem;
 
 public class ModModelPredicateProvider {
     public static void regModels() {

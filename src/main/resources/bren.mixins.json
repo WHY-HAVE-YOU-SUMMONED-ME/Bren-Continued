@@ -4,9 +4,9 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "CustomFirearmTooltips",
+    "EnchantmentHelperMixin",
     "PlayerEntityMixin",
-    "StructurePoolAccessor",
-    "TooltipsMixin"
+    "StructurePoolAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

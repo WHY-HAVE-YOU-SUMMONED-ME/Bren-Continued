@@ -12,7 +12,6 @@ import net.minecraft.util.math.Vec3d;
 import nl.sniffiandros.bren.common.registry.NetworkReg;
 
 public class NetworkUtils {
-
     public static void sendShotEffect(PlayerEntity player, Vec3d origin, Vec3d direction, boolean ejectCasing) {
         PacketByteBuf buf = PacketByteBufs.create();
 
@@ -26,7 +25,21 @@ public class NetworkUtils {
 
         buf.writeBoolean(ejectCasing);
 
-        sendDataToClient(player, NetworkReg.SHOOT_PACKET_ID, buf);
+        NetworkUtils.sendDataToClient(player, NetworkReg.SHOOT_PACKET_ID, buf);
+    }
+
+    public static void sendRecoil(PlayerEntity player, float recoil) {
+        PacketByteBuf buf = PacketByteBufs.create();
+
+        buf.writeFloat((float)recoil);
+        NetworkUtils.sendDataToClient(player, NetworkReg.RECOIL_CLIENT_PACKET_ID, buf);
+    }
+
+    public static void sendShootAnimation(PlayerEntity player, byte duration) {
+        PacketByteBuf buf = PacketByteBufs.create();
+
+        buf.writeByte(duration);
+        NetworkUtils.sendDataToClient(player, NetworkReg.SHOOT_ANIMATION_PACKET_ID, buf);
     }
 
     public static void sendDataToClient(PlayerEntity player, Identifier packet, PacketByteBuf buf) {

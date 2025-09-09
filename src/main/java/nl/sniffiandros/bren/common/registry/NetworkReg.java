@@ -5,9 +5,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import nl.sniffiandros.bren.common.Bren;
 import nl.sniffiandros.bren.common.entity.IGunUser;
-import nl.sniffiandros.bren.common.mixin.PlayerEntityMixin;
-import nl.sniffiandros.bren.common.registry.custom.types.GunItem;
-import nl.sniffiandros.bren.common.registry.custom.MagazineItem;
+import nl.sniffiandros.bren.common.registry.custom.types.*;
 import nl.sniffiandros.bren.common.utils.GunUtils;
 
 public class NetworkReg {

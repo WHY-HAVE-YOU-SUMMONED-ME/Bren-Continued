@@ -1,18 +1,15 @@
 package nl.sniffiandros.bren.common.registry.custom.enchantment;
 
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentTarget;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.Item;
 import nl.sniffiandros.bren.common.registry.custom.types.GunItem;
 
-public class GunEnchantment extends Enchantment {
+public class GunEnchantment extends BrenEnchantment {
     public GunEnchantment(Rarity weight) {
-        super(weight, EnchantmentTarget.BOW, new EquipmentSlot[]{EquipmentSlot.MAINHAND,EquipmentSlot.OFFHAND});
+        super(weight);
     }
 
     @Override
-    public boolean isAcceptableItem(ItemStack stack) {
-        return stack.getItem() instanceof GunItem;
+    public boolean acceptsItem(Item item) {
+        return item instanceof GunItem;
     }
 }

@@ -53,6 +53,14 @@ public class MConfig {
             "1 to keep the visuals, less than 1 to disable completely");
     
     @Entry
+    public static final ConfigHelper.FloatValue strongHeadshotMultiplier = new ConfigHelper.FloatValue(3f,
+            "Used by revolvers and the Skull Crusher enchantment");
+    
+    @Entry
+    public static final ConfigHelper.FloatValue fireRateMultiplier = new ConfigHelper.FloatValue(1f,
+            "The actual cooldown length are rounded to ticks");
+    
+    @Entry
     public static final ConfigHelper.FloatValue bulletSpeedMultiplier = new ConfigHelper.FloatValue(1f,
             "For every 0.2x increase, bulletCollisionSteps should be added by 1");
     
@@ -63,46 +71,6 @@ public class MConfig {
     @Entry
     public static final ConfigHelper.BooleanValue instantlyHit = new ConfigHelper.BooleanValue(false,
             "Shotguns are unaffected by this");
-
-    @Entry()
-    public static final ConfigHelper.FloatValue machineGunDamage = new ConfigHelper.FloatValue(4.5f,
-            "Ranged damage for the Machine Gun");
-
-    @Entry()
-    public static final ConfigHelper.FloatValue netheriteMachineGunDamage = new ConfigHelper.FloatValue(5f,
-            "Ranged damage for the Netherite Machine Gun");
-
-    @Entry()
-    public static final ConfigHelper.FloatValue autoGunDamage = new ConfigHelper.FloatValue(5.5f,
-            "Ranged damage for the Auto-Gun");
-
-    @Entry()
-    public static final ConfigHelper.FloatValue netheriteAutoGunDamage = new ConfigHelper.FloatValue(6f,
-            "Ranged damage for the Netherite Auto-Gun");
-
-    @Entry()
-    public static final ConfigHelper.FloatValue rifleDamage = new ConfigHelper.FloatValue(10f,
-            "Ranged damage for the Rifle");
-
-    @Entry()
-    public static final ConfigHelper.FloatValue netheriteRifleDamage = new ConfigHelper.FloatValue(11f,
-            "Ranged damage for the Netherite Rifle");
-
-    @Entry()
-    public static final ConfigHelper.FloatValue shotgunDamage = new ConfigHelper.FloatValue(4f,
-            "Damage per shrapnel for the Shotgun");
-
-    @Entry()
-    public static final ConfigHelper.FloatValue netheriteShotgunDamage = new ConfigHelper.FloatValue(4.5f,
-            "Damage per shrapnel for the Netherite Shotgun");
-
-    @Entry()
-    public static final ConfigHelper.FloatValue revolverDamage = new ConfigHelper.FloatValue(8f,
-            "Ranged damage for the Revolver");
-
-    @Entry()
-    public static final ConfigHelper.FloatValue netheriteRevolverDamage = new ConfigHelper.FloatValue(8.5f,
-            "Ranged damage for the Netherite Revolver");
 
     public static void init() {
         if (!file.exists()) {

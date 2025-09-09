@@ -25,11 +25,11 @@ public class GunHelper {
     }
 
     public static void readCustomDataFromNbt(NbtCompound nbt, DataTracker dataTracker) {
-        setGunState(GunHelper.GunStates.byIndex(nbt.getInt("MachineGunState")), dataTracker);
+        setGunState(GunHelper.GunStates.byIndex(nbt.getInt("GunState")), dataTracker);
     }
 
     public static void writeCustomDataToNbt(NbtCompound nbt, DataTracker dataTracker) {
-        nbt.putInt("MachineGunState", getGunState(dataTracker).getId());
+        nbt.putInt("GunState", getGunState(dataTracker).getId());
     }
 
     public enum GunStates {

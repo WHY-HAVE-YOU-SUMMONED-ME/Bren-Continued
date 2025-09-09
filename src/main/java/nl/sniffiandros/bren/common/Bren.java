@@ -19,7 +19,7 @@ import net.minecraft.util.Identifier;
 import nl.sniffiandros.bren.common.config.MConfig;
 import nl.sniffiandros.bren.common.entity.BulletEntity;
 import nl.sniffiandros.bren.common.registry.*;
-import nl.sniffiandros.bren.common.registry.custom.MagazineItem;
+import nl.sniffiandros.bren.common.registry.custom.types.*;
 import nl.sniffiandros.bren.common.registry.custom.criterion.LongShootingCriterion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

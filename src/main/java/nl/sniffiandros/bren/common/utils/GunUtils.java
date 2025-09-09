@@ -36,12 +36,8 @@ import nl.sniffiandros.bren.common.config.MConfig;
 import nl.sniffiandros.bren.common.entity.BulletEntity;
 import nl.sniffiandros.bren.common.entity.IGunUser;
 import nl.sniffiandros.bren.common.network.NetworkUtils;
-import nl.sniffiandros.bren.common.registry.AttributeReg;
-import nl.sniffiandros.bren.common.registry.EnchantmentReg;
-import nl.sniffiandros.bren.common.registry.ItemReg;
-import nl.sniffiandros.bren.common.registry.NetworkReg;
-import nl.sniffiandros.bren.common.registry.custom.types.GunItem;
-import nl.sniffiandros.bren.common.registry.custom.MagazineItem;
+import nl.sniffiandros.bren.common.registry.*;
+import nl.sniffiandros.bren.common.registry.custom.types.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,20 +47,21 @@ public class GunUtils {
     public static int fire(LivingEntity user) {
         World world = user.getWorld();
         ItemStack stack = user.getMainHandStack();
-        IGunUser gunUser = (IGunUser)user;
 
-        if (!(stack.getItem() instanceof GunItem gunItem)) return 0;
+        if (!(stack.getItem() instanceof GunItem gunItem) || !(user instanceof IGunUser gunUser)) return 0;
 
         if (!gunUser.getGunState().equals(GunHelper.GunStates.NORMAL)) return 0;
 
         boolean silenced = EnchantmentHelper.getLevel(EnchantmentReg.SILENCED, stack) >= 1;
+        boolean isRevolver = gunItem instanceof RevolverItem;
 
         world.playSound(null,
-                user.getX(),
-                user.getY(),
-                user.getZ(),
-                silenced ? gunItem.getSilentShootSound() : gunItem.getShootSound(),
-                SoundCategory.PLAYERS, silenced ? 1f : 10f, 1f - (user.getRandom().nextFloat() - 0.5f) / 8);
+            user.getX(),
+            user.getY(),
+            user.getZ(),
+            silenced ? gunItem.getSilentShootSound() : gunItem.getShootSound(),
+            SoundCategory.PLAYERS, silenced ? 1f : 10f, 1f - (user.getRandom().nextFloat() - 0.5f) / 8
+        );
 
         if (!silenced) {
             GunUtils.playDistantGunFire(world, user.getPos());
@@ -82,7 +79,15 @@ public class GunUtils {
             Vec3d down = position.get(2);
             Vec3d side = position.get(3);
             for (PlayerEntity p : world.getPlayers()) {
-                NetworkUtils.sendShotEffect(p, origin.add(side.multiply(0.4d).add(down.multiply(0.1d))), front);
+                NetworkUtils.sendShotEffect(
+                    p,
+                    origin.add(
+                        side.multiply(isRevolver ? 0.7d : 0.4d)
+                        .add(down.multiply(isRevolver ? 0.25d : 0.1d))
+                    ),
+                    front,
+                    gunItem.ejectCasing()
+                );
             }
 
             if (stack.getItem() instanceof RifleItem || MConfig.instantlyHit.get() && gunItem.bulletAmount() == 1) {
@@ -97,7 +102,7 @@ public class GunUtils {
                         airRingPos = airRingPos.multiply(f, f, f);
                     }
                 }
-                GunUtils.raytraceGunshot(user, EnchantmentHelper.getLevel(EnchantmentReg.PENETRATING, stack));
+                GunUtils.raytraceGunshot(user, EnchantmentHelper.getLevel(EnchantmentReg.PENETRATING, stack), getHeadshotDamageMultiplier(stack));
             } else {
                 for (int i = 0; i < gunItem.bulletAmount(); ++i) {
                     float x = (user.getRandom().nextFloat() - 0.5f) * 2 * gunItem.spread();
@@ -108,29 +113,18 @@ public class GunUtils {
         }
 
         if (user instanceof PlayerEntity player) {
-            PacketByteBuf buf = PacketByteBufs.create();
-            double recoil = user.getAttributeValue(AttributeReg.RECOIL);
-            
-            recoil *= 1 - Math.min(EnchantmentHelper.getLevel(EnchantmentReg.STEADY_HANDS, stack) * 0.125d, 1.0d);
-            
-            if (player.isInSneakingPose()) {
-                recoil *= MConfig.sneakingRecoilMultiplier.get();
-            }
+            double recoil = GunUtils.getRecoil(player, stack);
 
-            buf.writeFloat((float)recoil);
+            NetworkUtils.sendRecoil(player, (float)recoil);
 
-            NetworkUtils.sendDataToClient(player, NetworkReg.RECOIL_CLIENT_PACKET_ID, buf);
+            int recoilTicks = GunUtils.getRecoilTicks(recoil * (isRevolver ? 0.75d : 1d));
+            
+            NetworkUtils.sendShootAnimation(player, (byte)recoilTicks);
+            gunUser.setGunTicks(recoilTicks);
         }
 
         gunItem.useBullet(stack);
         return fireRate;
-    }
-
-    public static double CalculateRecoil(PlayerEntity player, ItemStack stack, double baseRecoil) {
-        baseRecoil *= MConfig.recoilMultiplier.get();
-        baseRecoil /= ((EnchantmentHelper.getLevel(EnchantmentReg.STEADY_HANDS, stack) * 2.6d * 0.1d) + 1);
-        baseRecoil = EnchantmentHelper.getLevel(EnchantmentReg.MOUNTED, stack) == 1 && player.isSneaking() ? baseRecoil / 2 : baseRecoil;
-        return Math.round(baseRecoil * 2) / 2.0;
     }
 
     public static List<Vec3d> calculatePositionBasedOnAngle(LivingEntity entity) {
@@ -158,23 +152,17 @@ public class GunUtils {
         float bulletVelocity = 4f * (1 + (penetratingLevel / 3f));
         bulletLifespan *= (4f / bulletVelocity);
 
-        Vec3d bulletPos = origin.subtract(new Vec3d(0d, 0.1d, 0d)).subtract(front.multiply(0.3d));
+        Vec3d bulletPos = origin.subtract(new Vec3d(0d, 0.1d, 0d)).subtract(front.multiply(0.3f));
         
-        BulletEntity bullet = new BulletEntity(world, bulletLifespan, entity, penetratingLevel);
+        BulletEntity bullet = new BulletEntity(world, bulletLifespan, entity, penetratingLevel, getHeadshotDamageMultiplier(stack));
         
         bullet.setPos(bulletPos.getX(), bulletPos.getY(), bulletPos.getZ());
         bullet.setVelocity(entity, entity.getPitch() + spread.y, entity.getHeadYaw() + spread.x, 0.0f, bulletVelocity, 0.0f);
 
         bullet.velocityModified = true;
         bullet.velocityDirty = true;
-        bullet.setFireTicks(ticksOnFire);
 
         world.spawnEntity(bullet);
-    }
-
-    public static void sendAnimationPacket(PlayerEntity player) {
-        PacketByteBuf buf = PacketByteBufs.empty();
-        NetworkUtils.sendDataToClient(player, NetworkReg.SHOOT_ANIMATION_PACKET_ID, buf);
     }
 
     public static void playDistantGunFire(World world, Vec3d pos) {
@@ -196,7 +184,6 @@ public class GunUtils {
         });
     }
 
-
     public static void fillMagazine(ItemStack mag, PlayerEntity player) {
         while (mag.getItem() instanceof MagazineItem) {
             ItemStack bulletStack = Bren.getItemFromPlayer(player, ItemReg.BULLET);
@@ -211,14 +198,12 @@ public class GunUtils {
         }
     }
 
-    public static boolean processBulletImpact(LivingEntity user, HitResult hit) {
+    public static boolean processBulletImpact(LivingEntity user, HitResult hit, float headshotMultiplier) {
         World world = user.getWorld();
 
         if (hit instanceof EntityHitResult entityHit) {
             if (entityHit.getEntity() instanceof LivingEntity livingEntity) {
-                float damageMultiplier = MConfig.headshotMultiplier.get();
-
-                if (damageMultiplier >= 1f) {
+                if (headshotMultiplier >= 1f) {
                     double eyeHeight = livingEntity.getEyeY();
                     double headshotRadius = livingEntity.getBoundingBox().maxY - eyeHeight;
                     double hitY = entityHit.getPos().getY();
@@ -229,13 +214,13 @@ public class GunUtils {
                             serverWorld.getChunkManager().sendToNearbyPlayers(user, new EntityAnimationS2CPacket(livingEntity, EntityAnimationS2CPacket.CRIT));
                         }
                     } else {
-                        damageMultiplier = 1f;
+                        headshotMultiplier = 1f;
                     }
                 } else {
-                    damageMultiplier = 1f;
+                    headshotMultiplier = 1f;
                 }
 
-                livingEntity.damage(livingEntity.getDamageSources().create(DamageTypes.ARROW, user), ((float)user.getAttributeValue(AttributeReg.RANGED_DAMAGE)) * damageMultiplier);
+                livingEntity.damage(livingEntity.getDamageSources().create(DamageTypes.ARROW, user), ((float)user.getAttributeValue(AttributeReg.RANGED_DAMAGE)) * headshotMultiplier);
                 livingEntity.timeUntilRegen = 0;
             }
             return true;
@@ -264,14 +249,14 @@ public class GunUtils {
         return false;
     }
 
-    public static boolean processBulletImpact(Entity user, HitResult hit) {
+    public static boolean processBulletImpact(Entity user, HitResult hit, float headshotMultiplier) {
         if (user instanceof LivingEntity livingEntity) {
-            return GunUtils.processBulletImpact(livingEntity, hit);
+            return GunUtils.processBulletImpact(livingEntity, hit, headshotMultiplier);
         }
         return false;
     }
 
-    public static void raytraceGunshot(Entity user, int penetratingLevel) {
+    public static void raytraceGunshot(Entity user, int penetratingLevel, float headshotMultiplier) {
         Vec3d rayStart = user.getCameraPosVec(1f);
         Vec3d rayDirection = user.getRotationVec(1f);
         Box box = user.getBoundingBox().stretch(rayDirection.multiply(128)).expand(1d, 1d, 1d);
@@ -282,12 +267,12 @@ public class GunUtils {
         
             EntityHitResult entityHit = ProjectileUtil.raycast(user, rayStart, rayEnd, box, entity -> !entity.isSpectator() && entity.canHit(), 16384);
 
-            if (GunUtils.processBulletImpact(user, entityHit)) {
+            if (GunUtils.processBulletImpact(user, entityHit, headshotMultiplier)) {
                 hitOffset = entityHit.getPos().subtract(rayStart.add(rayDirection));
             } else {
                 BlockHitResult blockHit = user.getWorld().raycast(new RaycastContext(rayStart, rayEnd, ShapeType.OUTLINE, FluidHandling.NONE, user));
 
-                if (GunUtils.processBulletImpact(user, blockHit)) {
+                if (GunUtils.processBulletImpact(user, blockHit, headshotMultiplier)) {
                     hitOffset = blockHit.getPos().subtract(rayStart.add(rayDirection));
                 }
             }
@@ -300,5 +285,28 @@ public class GunUtils {
                 break;
             }
         }
+    }
+
+    public static float getHeadshotDamageMultiplier(ItemStack stack) {
+        if (stack.getItem() instanceof RevolverItem || EnchantmentHelper.getLevel(EnchantmentReg.SKULL_CRUSHER, stack) > 0) {
+            return MConfig.strongHeadshotMultiplier.get();
+        }
+        return MConfig.headshotMultiplier.get();
+    }
+
+    public static double getRecoil(PlayerEntity player, ItemStack stack) {
+        double recoil = player.getAttributeValue(AttributeReg.RECOIL);
+            
+        recoil *= 1 - Math.min(EnchantmentHelper.getLevel(EnchantmentReg.STEADY_HANDS, stack) * 0.125d, 1.0d);
+        
+        if (player.isInSneakingPose()) {
+            recoil *= MConfig.sneakingRecoilMultiplier.get();
+        }
+
+        return recoil;
+    }
+
+    public static int getRecoilTicks(double recoil) {
+        return (int)Math.ceil(12f * (1f - (1f / recoil)));
     }
 }

@@ -17,10 +17,12 @@
             "items": [
               "bren:auto_gun",
               "bren:machine_gun",
+              "bren:revolver",
               "bren:rifle",
               "bren:shotgun",
               "bren:netherite_auto_gun",
               "bren:netherite_machine_gun",
+              "bren:netherite_revolver",
               "bren:netherite_rifle",
               "bren:netherite_shotgun"
             ]

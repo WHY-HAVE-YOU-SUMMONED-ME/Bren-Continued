@@ -1,8 +1,8 @@
 package nl.sniffiandros.bren.common.registry.custom.enchantment;
 
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.item.ItemStack;
-import nl.sniffiandros.bren.common.registry.custom.types.ShotgunItem;
+import net.minecraft.item.Item;
+import nl.sniffiandros.bren.common.registry.custom.types.BulletOnlyGun;
 
 public class OverflowEnchantment extends MagazineEnchantment {
     public OverflowEnchantment(Enchantment.Rarity weight) {
@@ -26,7 +26,7 @@ public class OverflowEnchantment extends MagazineEnchantment {
     }
 
     @Override
-    public boolean isAcceptableItem(ItemStack stack) {
-        return super.isAcceptableItem(stack) || stack.getItem() instanceof ShotgunItem;
+    public boolean acceptsItem(Item item) {
+        return super.acceptsItem(item) || item instanceof BulletOnlyGun;
     }
 }

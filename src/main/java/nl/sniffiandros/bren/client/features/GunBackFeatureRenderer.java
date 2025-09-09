@@ -26,10 +26,10 @@ public class GunBackFeatureRenderer<T extends LivingEntity, M extends BipedEntit
 
     @Override
     public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, T entity, float limbAngle, float limbDistance, float tickDelta, float animationProgress, float headYaw, float headPitch) {
-        if (entity instanceof IGunUser machineGunUser) {
-            ItemStack machineGun = machineGunUser.getLastGun();
-            if (!machineGun.isEmpty()) {
-                this.renderItem(entity, machineGun, ModelTransformationMode.NONE, matrices, vertexConsumers, light);
+        if (entity instanceof IGunUser gunUser) {
+            ItemStack gun = gunUser.getLastGun();
+            if (!gun.isEmpty()) {
+                this.renderItem(entity, gun, ModelTransformationMode.NONE, matrices, vertexConsumers, light);
             }
         }
     }
@@ -43,10 +43,10 @@ public class GunBackFeatureRenderer<T extends LivingEntity, M extends BipedEntit
             ModelPart modelPart = this.getContextModel().body;
             modelPart.rotate(matrices);
 
-            matrices.translate(0.1f, 0.1f, 0.25f);
-            matrices.scale(1f, 1f, 1f);
-            matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(60 + 180));
-            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-180));
+            matrices.translate(0.1f, 0.175f, 0.25f);
+            matrices.scale(1.5f, 1.5f, 1.5f);
+            matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(27.5f + 225f));
+            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-180f));
             BakedModel bakedModel = this.itemRenderer.getModel(stack, entity.getWorld(), entity, entity.getId() + transformationMode.ordinal());
             this.itemRenderer.renderItem(stack, transformationMode, false, matrices, vertexConsumers, light, OverlayTexture.DEFAULT_UV, bakedModel);
             matrices.pop();
