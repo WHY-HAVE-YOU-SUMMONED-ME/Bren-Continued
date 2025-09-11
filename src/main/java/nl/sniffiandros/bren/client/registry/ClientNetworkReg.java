@@ -41,7 +41,7 @@ public class ClientNetworkReg {
             client.execute(() -> {
                 World world = client.world;
                 if (world != null) {
-                    SoundInstance soundInstance = PositionedSoundInstance.master(SoundReg.ITEM_DISTANT_GUNFIRE, 1.0F - (world.getRandom().nextFloat() - 0.5F) / 8, volume);
+                    SoundInstance soundInstance = PositionedSoundInstance.master(SoundReg.ITEM_DISTANT_GUNFIRE, 1f - (world.getRandom().nextFloat() - 0.5f) / 8, volume);
                     client.getSoundManager().play(soundInstance);
                 }
             });
@@ -58,7 +58,7 @@ public class ClientNetworkReg {
             float directionY = buf.readFloat();
             float directionZ = buf.readFloat();
 
-            boolean ejectCasing = buf.readBoolean();
+            GunItem.CasingType casingType = buf.readEnumConstant(GunItem.CasingType.class);
 
             client.execute(() -> {
                 Vec3d origin = new Vec3d(originX, originY, originZ);
@@ -67,8 +67,8 @@ public class ClientNetworkReg {
                 World world = client.world;
                 if (world != null) {
                     GunItem.shotParticles(client.world, origin, direction, world.getRandom());
-                    if (MConfig.spawnCasingParticles.get() && ejectCasing) {
-                        GunItem.ejectCasingParticle(client.world, origin, direction, world.getRandom());
+                    if (MConfig.spawnCasingParticles.get()) {
+                        GunItem.ejectCasingParticle(client.world, origin, direction, world.getRandom(), casingType);
                     }
                 }
             });

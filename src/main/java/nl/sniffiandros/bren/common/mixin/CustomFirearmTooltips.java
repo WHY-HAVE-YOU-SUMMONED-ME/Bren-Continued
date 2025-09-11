@@ -60,6 +60,12 @@ public abstract class CustomFirearmTooltips {
                 value += player.getAttributeBaseValue(AttributeReg.RECOIL);
             }
 
+        } else if (attributeID == AttributeReg.EFFECTIVE_DISTANCE_MODIFIER_ID) {
+            insertion = "m";
+            
+            if (player != null) {
+                value += player.getAttributeBaseValue(AttributeReg.EFFECTIVE_DISTANCE);
+            }
         }
         return formatter.format(value) + insertion;
     }

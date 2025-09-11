@@ -14,8 +14,6 @@ public interface IGunUser {
 
     void setGunTicks(int t);
 
-    int shootingDuration();
-
     int getGunTicks();
 
     void setCanReload(boolean b);

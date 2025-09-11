@@ -24,6 +24,7 @@ public class RevolverItem extends BulletOnlyGun {
                 .rangedDamage(damage)
                 .fireRate(6)
                 .recoil(6f)
+                .effectiveDistance(30f)
                 .shootSound(SoundReg.ITEM_REVOLVER_SHOOT, null),
             6
         );
@@ -69,11 +70,6 @@ public class RevolverItem extends BulletOnlyGun {
     }
 
     @Override
-    public boolean ejectCasing() {
-        return false;
-    }
-
-    @Override
     protected void afterInserted(ItemStack stack, PlayerEntity player) {
         playSound(player, SoundReg.ITEM_REVOLVER_RELOAD);
     }
@@ -97,5 +93,10 @@ public class RevolverItem extends BulletOnlyGun {
                 }
             }
         }
+    }
+
+    @Override
+    public CasingType ejectCasingType() {
+        return CasingType.NONE;
     }
 }

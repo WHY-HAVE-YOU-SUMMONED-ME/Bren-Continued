@@ -12,7 +12,7 @@ import nl.sniffiandros.bren.common.Bren;
 import nl.sniffiandros.bren.common.registry.custom.block.WorkbenchBlock;
 
 public class BlockReg {
-    public static final Block WORKBENCH = registerBlock("workbench", new WorkbenchBlock(FabricBlockSettings.create().mapColor(MapColor.BROWN).sounds(BlockSoundGroup.LANTERN).instrument(Instrument.BASEDRUM).strength(3.5F)));
+    public static final Block WORKBENCH = registerBlock("workbench", new WorkbenchBlock(FabricBlockSettings.create().mapColor(MapColor.BROWN).sounds(BlockSoundGroup.LANTERN).instrument(Instrument.BASEDRUM).strength(3.5f)));
 
     private static Block registerBlock(String name, Block block) {
         return Registry.register(Registries.BLOCK, new Identifier(Bren.MODID, name), block);

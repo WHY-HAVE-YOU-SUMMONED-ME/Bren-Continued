@@ -12,7 +12,6 @@ public class AirRingParticle extends AscendingParticle {
         this.setColor(2f, 2f, 2f);
     }
 
-
     public ParticleTextureSheet getType() {
         return ParticleTextureSheet.PARTICLE_SHEET_LIT;
     }

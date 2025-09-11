@@ -11,6 +11,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
 import nl.sniffiandros.bren.common.Bren;
+import nl.sniffiandros.bren.common.config.MConfig;
 import nl.sniffiandros.bren.common.registry.EnchantmentReg;
 import nl.sniffiandros.bren.common.registry.custom.enchantment.AutofillEnchantment;
 import org.jetbrains.annotations.Nullable;
@@ -45,7 +46,7 @@ public class MagazineItem extends Item {
 
     public static int getMaxCapacity(ItemStack stack) {
         if (stack.getItem() instanceof MagazineItem magazineItem) {
-            return Math.round(magazineItem.capacity * Math.max(1, 1 + (float) EnchantmentHelper.getLevel(EnchantmentReg.OVERFLOW, stack) / 4));
+            return Math.round(magazineItem.capacity * Math.max(1f, 1f + (EnchantmentHelper.getLevel(EnchantmentReg.OVERFLOW, stack) / 4f)) * MConfig.ammoCapacityMultiplier.get());
         }
         return 10;
     }
@@ -53,7 +54,7 @@ public class MagazineItem extends Item {
     @Override
     public int getItemBarStep(ItemStack stack) {
         if (stack.getItem() instanceof MagazineItem) {
-            return Math.round(getContents(stack) * 13.0F / (float) getMaxCapacity(stack));
+            return Math.round(getContents(stack) * 13f / (float) getMaxCapacity(stack));
         }
         return 0;
     }

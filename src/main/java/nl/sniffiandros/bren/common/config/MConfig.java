@@ -59,18 +59,10 @@ public class MConfig {
     @Entry
     public static final ConfigHelper.FloatValue fireRateMultiplier = new ConfigHelper.FloatValue(1f,
             "The actual cooldown length are rounded to ticks");
-    
+
     @Entry
-    public static final ConfigHelper.FloatValue bulletSpeedMultiplier = new ConfigHelper.FloatValue(1f,
-            "For every 0.2x increase, bulletCollisionSteps should be added by 1");
-    
-    @Entry
-    public static final ConfigHelper.IntValue bulletCollisionSteps = new ConfigHelper.IntValue(4,
-            "If you set this too low, bullets may become inaccurate");
-    
-    @Entry
-    public static final ConfigHelper.BooleanValue instantlyHit = new ConfigHelper.BooleanValue(false,
-            "Shotguns are unaffected by this");
+    public static final ConfigHelper.FloatValue ammoCapacityMultiplier = new ConfigHelper.FloatValue(1f,
+            "Maximum level of Overflow always gives twice the base capacity");
 
     public static void init() {
         if (!file.exists()) {
@@ -87,8 +79,7 @@ public class MConfig {
         }
 
         try (FileWriter fileWriter = new FileWriter(file)) {
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("name", "Config for the Bren mod");
+            JsonObject root = new JsonObject();
 
             for (Field field : MConfig.class.getDeclaredFields()) {
                 if (!field.isAnnotationPresent(Entry.class)) {
@@ -101,12 +92,15 @@ public class MConfig {
                     continue;
                 }
 
-                jsonObject.addProperty(String.format("_comment_%s", field.getName()), configValue.getComment());
+                JsonObject entry = new JsonObject();
 
-                jsonObject.add(field.getName(), configValue.write());
+                entry.add("value", configValue.write());
+                entry.addProperty("description", configValue.getComment());
+
+                root.add(field.getName(), entry);
             }
 
-            GSON.toJson(jsonObject, fileWriter);
+            GSON.toJson(root, fileWriter);
         } catch (IOException e) {
             Bren.LOGGER.error("Failed to save the Bren config", e);
         } catch (IllegalAccessException e) {
@@ -139,7 +133,7 @@ public class MConfig {
                     continue;
                 }
 
-                JsonElement jsonElement = jsonObject.get(fieldName);
+                JsonElement jsonElement = jsonObject.getAsJsonObject(fieldName).get("value");
                 configValue.setUnchecked(configValue.read(jsonElement));
             }
         } catch (IOException e) {

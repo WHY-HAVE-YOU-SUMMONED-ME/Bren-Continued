@@ -34,7 +34,6 @@ import net.minecraft.world.RaycastContext.ShapeType;
 import net.minecraft.world.World;
 import nl.sniffiandros.bren.common.Bren;
 import nl.sniffiandros.bren.common.config.MConfig;
-import nl.sniffiandros.bren.common.entity.BulletEntity;
 import nl.sniffiandros.bren.common.entity.IGunUser;
 import nl.sniffiandros.bren.common.network.NetworkUtils;
 import nl.sniffiandros.bren.common.registry.*;
@@ -83,32 +82,24 @@ public class GunUtils {
                 Vec3d shootEffectPosition = isRevolver ? origin.subtract(front.multiply(0.3d)) : origin;
 
                 shootEffectPosition = shootEffectPosition.add(
-                    side.multiply(isRevolver ? 0.35d : 0.3d)
-                    .add(down.multiply(isRevolver ? 0.15d : 0.1d))
+                        side.multiply(isRevolver ? 0.35d : 0.3d)
+                        .add(down.multiply(isRevolver ? 0.15d : 0.1d))
                 );
 
-                NetworkUtils.sendShootEffect(p, shootEffectPosition, front, gunItem.ejectCasing());
+                NetworkUtils.sendShootEffect(p, shootEffectPosition, front, gunItem.ejectCasingType());
             }
 
-            if (stack.getItem() instanceof RifleItem || MConfig.instantlyHit.get() && gunItem.bulletAmount() == 1) {
-                if (world instanceof ServerWorld serverWorld) {
-                    Vec3d airRingPos = front.multiply(8.0);
-                    for (int i = 1; i < 3; i++) {
-			            Vec3d temp = origin.add(airRingPos);
-                        for (ServerPlayerEntity p : serverWorld.getPlayers()) {
-                            serverWorld.spawnParticles(p, ParticleReg.AIR_RING_PARTICLE, false, temp.x, temp.y, temp.z, 0, 0, 0, 1, 0);
-                        }
-			            float f = 1 + (i * 0.6f);
-                        airRingPos = airRingPos.multiply(f, f, f);
-                    }
-                }
-                GunUtils.raytraceGunshot(user, EnchantmentHelper.getLevel(EnchantmentReg.PENETRATING, stack), getHeadshotDamageMultiplier(stack));
-            } else {
-                for (int i = 0; i < gunItem.bulletAmount(); ++i) {
-                    float x = (user.getRandom().nextFloat() - 0.5f) * 2 * gunItem.spread();
-                    float y = (user.getRandom().nextFloat() - 0.5f) * 2 * gunItem.spread();
-                    GunUtils.spawnBullet(user, origin, front, stack, new Vec2f(x, y), gunItem.bulletLifespan());
-                }
+            for (int i = 0; i < gunItem.bulletAmount(); i++) {
+                float x = (user.getRandom().nextFloat() - 0.5f) * 2 * gunItem.spread();
+                float y = (user.getRandom().nextFloat() - 0.5f) * 2 * gunItem.spread();
+
+                GunUtils.raytraceGunshot(
+                    user,
+                    new Vec2f(x, y),
+                    user.getAttributeValue(AttributeReg.EFFECTIVE_DISTANCE),
+                    EnchantmentHelper.getLevel(EnchantmentReg.PENETRATING, stack),
+                    getHeadshotDamageMultiplier(stack)
+                );
             }
         }
 
@@ -144,27 +135,6 @@ public class GunUtils {
         return positions;
     }
 
-    public static void spawnBullet(LivingEntity entity, Vec3d origin, Vec3d front, ItemStack stack, Vec2f spread, int bulletLifespan) {
-        World world = entity.getWorld();
-
-        int penetratingLevel = EnchantmentHelper.getLevel(EnchantmentReg.PENETRATING, stack);
-
-        float bulletVelocity = 4f * (1 + (penetratingLevel / 3f));
-        bulletLifespan *= (4f / bulletVelocity);
-
-        Vec3d bulletPos = origin.subtract(new Vec3d(0d, 0.1d, 0d)).subtract(front.multiply(0.3f));
-        
-        BulletEntity bullet = new BulletEntity(world, bulletLifespan, entity, penetratingLevel, getHeadshotDamageMultiplier(stack));
-        
-        bullet.setPos(bulletPos.getX(), bulletPos.getY(), bulletPos.getZ());
-        bullet.setVelocity(entity, entity.getPitch() + spread.y, entity.getHeadYaw() + spread.x, 0.0f, bulletVelocity, 0.0f);
-
-        bullet.velocityModified = true;
-        bullet.velocityDirty = true;
-
-        world.spawnEntity(bullet);
-    }
-
     public static void playDistantGunFire(World world, Vec3d pos) {
         if (world.isClient()) {
             return;
@@ -174,7 +144,7 @@ public class GunUtils {
             double distance = player.squaredDistanceTo(pos);
 
             if (distance > 128) {
-                float volume = (float) Math.max(1.0f - (distance / 2000), 0);
+                float volume = (float) Math.max(1f - (distance / 2000f), 0);
                 if (volume > 0) {
                     PacketByteBuf buf = PacketByteBufs.create();
                     buf.writeFloat(volume);
@@ -205,10 +175,9 @@ public class GunUtils {
             if (entityHit.getEntity() instanceof LivingEntity livingEntity) {
                 if (headshotMultiplier >= 1f) {
                     double eyeHeight = livingEntity.getEyeY();
-                    double headshotRadius = livingEntity.getBoundingBox().maxY - eyeHeight;
                     double hitY = entityHit.getPos().getY();
 
-                    if (hitY >= (eyeHeight - headshotRadius) && hitY <= (eyeHeight + headshotRadius)) {
+                    if (hitY >= eyeHeight - (livingEntity.getBoundingBox().maxY - eyeHeight)) {
                         world.playSound(null, livingEntity.getX(), livingEntity.getY(), livingEntity.getZ(), SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, user.getSoundCategory(), 2f, 1f);
                         if (world instanceof ServerWorld serverWorld) {
                             serverWorld.getChunkManager().sendToNearbyPlayers(user, new EntityAnimationS2CPacket(livingEntity, EntityAnimationS2CPacket.CRIT));
@@ -220,7 +189,12 @@ public class GunUtils {
                     headshotMultiplier = 1f;
                 }
 
-                livingEntity.damage(livingEntity.getDamageSources().create(DamageTypes.ARROW, user), ((float)user.getAttributeValue(AttributeReg.RANGED_DAMAGE)) * headshotMultiplier);
+                double damage = user.getAttributeValue(AttributeReg.RANGED_DAMAGE) * headshotMultiplier;
+                double effectiveDistance = user.getAttributeValue(AttributeReg.EFFECTIVE_DISTANCE) / 2d;
+
+                damage *= 1d - Math.max(0d, (livingEntity.distanceTo(user) - effectiveDistance) / effectiveDistance);
+
+                livingEntity.damage(livingEntity.getDamageSources().create(DamageTypes.ARROW, user), (float)damage);
                 livingEntity.timeUntilRegen = 0;
             }
             return true;
@@ -233,7 +207,7 @@ public class GunUtils {
                 if ((state.isIn(ConventionalBlockTags.GLASS_BLOCKS) || state.isIn(ConventionalBlockTags.GLASS_PANES)) && MConfig.bulletsBreakGlass.get()) {
                     world.breakBlock(pos, false, user);
                 } else {
-                    world.playSound(null, vec3d.x, vec3d.y, vec3d.z, state.getSoundGroup().getBreakSound(), SoundCategory.BLOCKS, 1.0F, 3.0F);
+                    world.playSound(null, vec3d.x, vec3d.y, vec3d.z, state.getSoundGroup().getBreakSound(), SoundCategory.BLOCKS, 1f, 3f);
 
                     if (world instanceof ServerWorld serverWorld) {
                         for (int i = 0; i < 4; ++i) {
@@ -256,24 +230,38 @@ public class GunUtils {
         return false;
     }
 
-    public static void raytraceGunshot(Entity user, int penetratingLevel, float headshotMultiplier) {
+    public static void raytraceGunshot(LivingEntity user, Vec2f spread, double maxDistance, int penetratingLevel, float headshotMultiplier) {
+        maxDistance = Math.min(maxDistance, user.getServer().getPlayerManager().getViewDistance() * 16d);
+        
         Vec3d rayStart = user.getCameraPosVec(1f);
-        Vec3d rayDirection = user.getRotationVec(1f);
-        Box box = user.getBoundingBox().stretch(rayDirection.multiply(128)).expand(1d, 1d, 1d);
+        Vec3d rayDirection = Vec3d.fromPolar(user.getRotationClient().add(spread));
+        Box box = user.getBoundingBox().stretch(rayDirection.multiply(maxDistance)).expand(1d, 1d, 1d);
         Set<Integer> entityBlacklist = new IntOpenHashSet(3);
 
         for (; penetratingLevel >= 0;) {
-            Vec3d rayEnd = rayStart.add(rayDirection.multiply(128));
+            Vec3d rayEnd = rayStart.add(rayDirection.multiply(maxDistance));
             Vec3d hitOffset = null;
-        
-            EntityHitResult entityHit = ProjectileUtil.raycast(user, rayStart, rayEnd, box, entity -> !entity.isSpectator() && entity.canHit() && !entityBlacklist.contains(entity.getId()), 16384);
+
+            BlockHitResult blockHit = user.getWorld().raycast(new RaycastContext(rayStart, rayEnd, ShapeType.OUTLINE, FluidHandling.NONE, user));
+            double maxEntityDistance = blockHit.getPos().subtract(rayStart).lengthSquared();
+
+            EntityHitResult entityHit = ProjectileUtil.raycast(
+                user,
+                rayStart,
+                rayEnd,
+                box,
+                entity -> (
+                    !entity.isSpectator() &&
+                    entity.canHit() &&
+                    !entityBlacklist.contains(entity.getId())
+                ),
+                maxEntityDistance
+            );
 
             if (GunUtils.processBulletImpact(user, entityHit, headshotMultiplier)) {
                 hitOffset = entityHit.getPos().subtract(rayStart.add(rayDirection));
                 entityBlacklist.add(entityHit.getEntity().getId());
             } else {
-                BlockHitResult blockHit = user.getWorld().raycast(new RaycastContext(rayStart, rayEnd, ShapeType.OUTLINE, FluidHandling.NONE, user));
-
                 if (GunUtils.processBulletImpact(user, blockHit, headshotMultiplier)) {
                     hitOffset = blockHit.getPos().subtract(rayStart.add(rayDirection));
                 }
@@ -281,10 +269,28 @@ public class GunUtils {
 
             if (hitOffset != null) {
                 penetratingLevel--;
+
+                if ((maxDistance -= hitOffset.length()) <= 0f) break;
+
                 rayStart = rayStart.add(hitOffset);
                 box = box.offset(hitOffset);
             } else {
                 break;
+            }
+        }
+
+        if (user.getWorld() instanceof ServerWorld serverWorld) {
+            Vec3d airRingPos = rayDirection.multiply(Math.min(maxDistance * 0.4d, 8d));
+
+            for (int i = 1; i < 3; i++) {
+		        Vec3d temp = rayStart.add(airRingPos);
+
+                for (ServerPlayerEntity p : serverWorld.getPlayers()) {
+                    serverWorld.spawnParticles(p, ParticleReg.AIR_RING_PARTICLE, false, temp.x, temp.y, temp.z, 0, 0, 0, 1, 0);
+                }
+
+			    float f = 1 + (i * 0.6f);
+                airRingPos = airRingPos.multiply(f, f, f);
             }
         }
     }

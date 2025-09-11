@@ -16,6 +16,7 @@ public class ShotgunItem extends BulletOnlyGun {
                 .rangedDamage(damage)
                 .fireRate(22)
                 .recoil(30f)
+                .effectiveDistance(8f)
                 .shootSound(SoundReg.ITEM_SHOTGUN_SHOOT, null),
             8
         );
@@ -32,8 +33,8 @@ public class ShotgunItem extends BulletOnlyGun {
     }
 
     @Override
-    public int bulletLifespan() {
-        return 9;
+    public float bulletTravelDistance() {
+        return 8f;
     }
 
     @Override
@@ -54,5 +55,10 @@ public class ShotgunItem extends BulletOnlyGun {
     @Override
     public int reloadSpeed() {
         return 13;
+    }
+
+    @Override
+    public CasingType ejectCasingType() {
+        return CasingType.SHELL;
     }
 }

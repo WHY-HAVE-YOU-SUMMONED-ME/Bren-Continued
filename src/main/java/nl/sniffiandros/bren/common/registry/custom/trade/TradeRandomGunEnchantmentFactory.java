@@ -37,7 +37,7 @@ public class TradeRandomGunEnchantmentFactory implements TradeOffers.Factory {
     public TradeOffer create(Entity entity, Random random) {
         int i = random.nextInt(4) + 1;
 
-        Enchantment enchantment = ENCHANTS.get(random.nextBetween(0, ENCHANTS.size()));
+        Enchantment enchantment = ENCHANTS.get(random.nextBetween(0, ENCHANTS.size() - 1));
 
         ItemStack itemStack = EnchantedBookItem.forEnchantment(new EnchantmentLevelEntry(enchantment, Math.min(enchantment.getMaxLevel(), i)));
 

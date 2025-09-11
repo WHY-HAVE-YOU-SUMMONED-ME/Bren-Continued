@@ -11,6 +11,7 @@ public class ParticleReg {
     public static final DefaultParticleType MUZZLE_SMOKE_PARTICLE = FabricParticleTypes.simple();
     public static final DefaultParticleType AIR_RING_PARTICLE = FabricParticleTypes.simple();
     public static final DefaultParticleType CASING_PARTICLE = FabricParticleTypes.simple();
+    public static final DefaultParticleType SHELL_CASING_PARTICLE = FabricParticleTypes.simple();
 
     public static void reg() {
         Registry.register(Registries.PARTICLE_TYPE, new Identifier(Bren.MODID, "muzzle_smoke"),
@@ -19,5 +20,7 @@ public class ParticleReg {
                 AIR_RING_PARTICLE);
         Registry.register(Registries.PARTICLE_TYPE, new Identifier(Bren.MODID, "casing"),
                 CASING_PARTICLE);
+        Registry.register(Registries.PARTICLE_TYPE, new Identifier(Bren.MODID, "shell_casing"),
+                SHELL_CASING_PARTICLE);
     }
 }

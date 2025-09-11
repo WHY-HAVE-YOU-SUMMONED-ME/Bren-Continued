@@ -25,6 +25,7 @@
   "enchantment.bren.penetrating": "Penetrating",
   "enchantment.bren.skull_crusher": "Skull Crusher",
   
+  "desc.bren.item.auto_loader_contraption": "Banned in most places",
   "desc.bren.item.gun_with_mag.content": "Rounds",
   "desc.bren.item.magazine.content": "Ammo",
 
@@ -45,35 +46,31 @@
   "bren.item.revolver.reload": "Cylinder clicks",
   "bren.item.revolver.spinning": "Revolver spinning",
 
-  "death.attack.bullet": "%1$s was gunned down by %2$s!",
-
-  "key.bren.reload": "Reload",
+  "key.bren.reload": "Reload Gun / Magazine",
 
   "attribute.name.ranged_damage": "Ranged Damage",
   "attribute.name.fire_rate": "Fire Rate",
   "attribute.name.recoil": "Recoil",
+  "attribute.name.effective_distance": "Effective Distance",
 
   "advancements.bren.adventure.auto_loader_contraption.description": "Obtain an Auto Loader Contraption",
   "advancements.bren.adventure.auto_loader_contraption.title": "A whaaa...?!",
 
-  "advancements.bren.adventure.machine_gun.description": "Obtain an Machine Gun",
-  "advancements.bren.adventure.machine_gun.title": "BRRRT!!",
+  "advancements.bren.adventure.machine_gun.description": "Obtain a Machine Gun",
+  "advancements.bren.adventure.machine_gun.title": "Heavy Machine Gun",
 
   "advancements.bren.adventure.auto_gun.description": "Obtain an Auto-Gun",
-  "advancements.bren.adventure.auto_gun.title": "An AK-4... never mind",
+  "advancements.bren.adventure.auto_gun.title": "Terrorists Win",
 
-  "advancements.bren.adventure.rifle.description": "Obtain an Rifle",
-  "advancements.bren.adventure.rifle.title": "See you in five minutes..",
+  "advancements.bren.adventure.rifle.description": "Obtain a Rifle",
+  "advancements.bren.adventure.rifle.title": "See you in five minutes...",
 
-  "advancements.bren.adventure.shotgun.description": "Obtain an Shotgun",
-  "advancements.bren.adventure.shotgun.title": "BAM!!!",
+  "advancements.bren.adventure.shotgun.description": "Obtain a Shotgun",
+  "advancements.bren.adventure.shotgun.title": "BAM!!",
 
-  "advancements.bren.adventure.revolver.description": "Obtain an Revolver",
+  "advancements.bren.adventure.revolver.description": "Obtain a Revolver",
   "advancements.bren.adventure.revolver.title": "Little Jimmy",
 
-  "advancements.bren.adventure.warcrimes.description": "Kill a villager with a gun",
-  "advancements.bren.adventure.warcrimes.title": "War crimes",
-
-  "advancements.bren.adventure.long_shooting_machine_gun.description": "Shoot a Machine Gun for a couple of seconds",
-  "advancements.bren.adventure.long_shooting_machine_gun.title": "AHHHHH AH HA HA HA HA HA!!"
+  "advancements.bren.adventure.warcrimes.description": "Kill a Villager with a Gun",
+  "advancements.bren.adventure.warcrimes.title": "War Crimes"
 }

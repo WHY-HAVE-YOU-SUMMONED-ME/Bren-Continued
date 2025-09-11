@@ -42,7 +42,9 @@ public class ConfigHelper {
             return this.defaultValue;
         }
 
-        public String getComment() {return this.comment;}
+        public String getComment() {
+            return this.comment;
+        }
 
         public abstract T read(JsonElement jsonElement);
         public abstract JsonElement write();

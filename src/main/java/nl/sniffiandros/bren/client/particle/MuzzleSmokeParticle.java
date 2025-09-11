@@ -7,7 +7,6 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.particle.DefaultParticleType;
 
 public class MuzzleSmokeParticle extends AscendingParticle {
-
     protected MuzzleSmokeParticle(ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, float scaleMultiplier, SpriteProvider spriteProvider) {
         super(world, x, y, z, 0.1f, 0.1f, 0.1f, velocityX, velocityY, velocityZ, scaleMultiplier, spriteProvider, 1f, 2, 0f, true);
         this.setColor(1f, 1f, 1f);

@@ -11,6 +11,7 @@ import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
+import net.minecraft.particle.DefaultParticleType;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
@@ -43,6 +44,7 @@ public class GunItem extends ToolItem implements Vanishable {
         builder.put(AttributeReg.RANGED_DAMAGE, new EntityAttributeModifier(AttributeReg.RANGED_DAMAGE_MODIFIER_ID, "Weapon modifier", gunProperties.rangedDamage, EntityAttributeModifier.Operation.ADDITION));
         builder.put(AttributeReg.FIRE_RATE, new EntityAttributeModifier(AttributeReg.FIRE_RATE_MODIFIER_ID, "Weapon modifier", gunProperties.fireRate, EntityAttributeModifier.Operation.ADDITION));
         builder.put(AttributeReg.RECOIL, new EntityAttributeModifier(AttributeReg.RECOIL_MODIFIER_ID, "Weapon modifier", gunProperties.recoil, EntityAttributeModifier.Operation.ADDITION));
+        builder.put(AttributeReg.EFFECTIVE_DISTANCE, new EntityAttributeModifier(AttributeReg.EFFECTIVE_DISTANCE_MODIFIER_ID, "Weapon modifier", gunProperties.effectiveDistance, EntityAttributeModifier.Operation.ADDITION));
         this.attributeModifiers = builder.build();
     }
 
@@ -54,13 +56,21 @@ public class GunItem extends ToolItem implements Vanishable {
         return super.getAttributeModifiers(slot);
     }
 
-    public boolean applyCustomMatrix(LivingEntity entity, GunHelper.GunStates state, MatrixStack matrixStack, ItemStack stack, float cooldownProgress, ModelTransformationMode renderMode, boolean leftHanded) {return false;}
+    public boolean applyCustomMatrix(LivingEntity entity, GunHelper.GunStates state, MatrixStack matrixStack, ItemStack stack, float cooldownProgress, ModelTransformationMode renderMode, boolean leftHanded) {
+        return false;
+    }
 
-    public boolean hasGUIModel() {return true;}
+    public boolean hasGUIModel() {
+        return true;
+    }
 
-    public boolean ejectCasing() {return true;}
+    public CasingType ejectCasingType() {
+        return CasingType.BULLET;
+    }
 
-    public boolean renderOnBack() {return true;}
+    public boolean renderOnBack() {
+        return true;
+    }
 
     public PoseType holdingPose() {
         return PoseType.TWO_ARMS;
@@ -123,12 +133,14 @@ public class GunItem extends ToolItem implements Vanishable {
         }
     }
 
-    public static void ejectCasingParticle(World world, Vec3d origin, Vec3d direction, Random random) {
-        Vec3d rotated = direction.rotateY((float) (-Math.PI / 2));
+    public static void ejectCasingParticle(World world, Vec3d origin, Vec3d direction, Random random, GunItem.CasingType casingType) {
+        if (casingType == GunItem.CasingType.NONE) return;
+        
+        Vec3d rotated = direction.rotateY((float)(-Math.PI / 2));
 
         Vec3d p = origin.add(direction.multiply(0.3f)).add(rotated.multiply(0.26));
         Vec3d v = rotated.multiply(0.15f).add(0, 0.5f + world.getRandom().nextFloat() * 0.1f, 0);
-        world.addParticle(ParticleReg.CASING_PARTICLE, p.x, p.y, p.z, v.x, v.y, v.z);
+        world.addParticle(casingType.getParticle(), p.x, p.y, p.z, v.x, v.y, v.z);
     }
 
     @Override
@@ -160,8 +172,8 @@ public class GunItem extends ToolItem implements Vanishable {
         );
     }
 
-    public int bulletLifespan() {
-        return 15;
+    public float bulletTravelDistance() {
+        return 128f;
     }
 
     public float spread() {
@@ -172,10 +184,28 @@ public class GunItem extends ToolItem implements Vanishable {
         return 1;
     }
 
-    public int reloadSpeed() {return 20;}
+    public int reloadSpeed() {
+        return 20;
+    }
 
     @Override
     public int getMaxUseTime(ItemStack stack) {
         return 0;
+    }
+
+    public enum CasingType {
+        BULLET(ParticleReg.CASING_PARTICLE),
+        SHELL(ParticleReg.SHELL_CASING_PARTICLE),
+        NONE(null);
+
+        private DefaultParticleType particleType;
+
+        private CasingType(DefaultParticleType particleType) {
+            this.particleType = particleType;
+        }
+
+        public DefaultParticleType getParticle() {
+            return this.particleType;
+        }
     }
 }

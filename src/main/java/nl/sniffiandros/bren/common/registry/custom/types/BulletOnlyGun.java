@@ -9,6 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ToolMaterial;
 import net.minecraft.world.World;
 import nl.sniffiandros.bren.common.Bren;
+import nl.sniffiandros.bren.common.config.MConfig;
 import nl.sniffiandros.bren.common.entity.IGunUser;
 import nl.sniffiandros.bren.common.registry.EnchantmentReg;
 import nl.sniffiandros.bren.common.registry.ItemReg;
@@ -24,7 +25,7 @@ public class BulletOnlyGun extends GunItem {
     }
 
     public int getMaxCapacity(ItemStack stack) {
-        return Math.round(capacity * Math.max(1, 1 + (float)EnchantmentHelper.getLevel(EnchantmentReg.OVERFLOW, stack) / 4));
+        return Math.round(capacity * Math.max(1f, 1f + (EnchantmentHelper.getLevel(EnchantmentReg.OVERFLOW, stack)) / 4f) * MConfig.ammoCapacityMultiplier.get());
     }
 
     @Override

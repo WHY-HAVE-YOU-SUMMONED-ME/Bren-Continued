@@ -4,6 +4,7 @@ import net.minecraft.sound.SoundEvent;
 import nl.sniffiandros.bren.common.config.MConfig;
 
 public class GunProperties {
+    float effectiveDistance;
     float recoil;
     float rangedDamage;
     int fireRate;
@@ -24,6 +25,11 @@ public class GunProperties {
 
     public GunProperties recoil(float recoil) {
         this.recoil = recoil * MConfig.recoilMultiplier.get();
+        return this;
+    }
+
+    public GunProperties effectiveDistance(float distance) {
+        this.effectiveDistance = distance;
         return this;
     }
     

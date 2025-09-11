@@ -13,11 +13,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registries;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import nl.sniffiandros.bren.common.Bren;
 import nl.sniffiandros.bren.common.entity.IGunUser;
 import nl.sniffiandros.bren.common.events.MEvents;
 import nl.sniffiandros.bren.common.registry.AttributeReg;
@@ -46,7 +44,6 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IGunUser
     private ItemStack lastGun = ItemStack.EMPTY;
     private ItemStack lastEquippedGun = ItemStack.EMPTY;
     private boolean lastGunLoaded = false;
-    private int shootingDur = 0;
 
     public PlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
         super(EntityType.PLAYER, world);
@@ -56,11 +53,6 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IGunUser
     @Override
     public boolean isShooting() {
         return this.getActiveItem().getItem() instanceof GunItem;
-    }
-
-    @Override
-    public int shootingDuration() {
-        return this.shootingDur;
     }
 
     @Override
@@ -176,15 +168,6 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IGunUser
         }
         this.handleShooting();
 
-        if (this.isShooting()) {
-            ++this.shootingDur;
-            if (!this.getWorld().isClient()) {
-                Bren.LONG_SHOOTING.trigger((ServerPlayerEntity) (Object) this, this.getActiveItem());
-            }
-        } else {
-            this.shootingDur = 0;
-        }
-
         this.reloadTick();
     }
 
@@ -229,6 +212,11 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IGunUser
 
     @Inject(at = @At("TAIL"), method = "createPlayerAttributes", cancellable = true)
     private static void createPlayerAttributes(CallbackInfoReturnable<DefaultAttributeContainer.Builder> cir) {
-        cir.setReturnValue(cir.getReturnValue().add(AttributeReg.RANGED_DAMAGE, 0d).add(AttributeReg.FIRE_RATE, 0d).add(AttributeReg.RECOIL, 0d));
+        cir.setReturnValue(
+            cir.getReturnValue().add(AttributeReg.RANGED_DAMAGE, 0d)
+                .add(AttributeReg.FIRE_RATE, 0d)
+                .add(AttributeReg.RECOIL, 0d)
+                .add(AttributeReg.EFFECTIVE_DISTANCE, 0d)
+        );
     }
 }

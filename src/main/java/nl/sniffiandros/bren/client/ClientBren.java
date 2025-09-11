@@ -7,7 +7,6 @@ import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.*;
 import net.minecraft.client.render.*;
-import net.minecraft.client.render.entity.EmptyEntityRenderer;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.item.DyeableItem;
@@ -19,7 +18,6 @@ import nl.sniffiandros.bren.client.particle.CasingParticle;
 import nl.sniffiandros.bren.client.particle.MuzzleSmokeParticle;
 import nl.sniffiandros.bren.client.registry.ClientNetworkReg;
 import nl.sniffiandros.bren.client.renderer.WeaponTickHolder;
-import nl.sniffiandros.bren.common.Bren;
 import nl.sniffiandros.bren.common.config.MConfig;
 import nl.sniffiandros.bren.common.registry.*;
 import nl.sniffiandros.bren.common.registry.custom.types.GunWithMagItem;
@@ -39,6 +37,7 @@ public class ClientBren implements ClientModInitializer {
         particleRegistry.register(ParticleReg.MUZZLE_SMOKE_PARTICLE, MuzzleSmokeParticle.Factory::new);
         particleRegistry.register(ParticleReg.AIR_RING_PARTICLE, AirRingParticle.Factory::new);
         particleRegistry.register(ParticleReg.CASING_PARTICLE, CasingParticle.Factory::new);
+        particleRegistry.register(ParticleReg.SHELL_CASING_PARTICLE, CasingParticle.Factory::new);
 
         BlockRenderLayerMap.INSTANCE.putBlock(BlockReg.WORKBENCH, RenderLayer.getCutout());
 
@@ -46,7 +45,6 @@ public class ClientBren implements ClientModInitializer {
         ClientNetworkReg.clientShootPacket();
         ClientNetworkReg.shootAnimationPacket();
         ClientNetworkReg.recoilPacket();
-        EntityRendererRegistry.register(Bren.BULLET, EmptyEntityRenderer::new);
         KeyBindingReg.reg();
         ModModelPredicateProvider.regModels();
 

@@ -10,20 +10,21 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import nl.sniffiandros.bren.common.registry.NetworkReg;
+import nl.sniffiandros.bren.common.registry.custom.types.GunItem;
 
 public class NetworkUtils {
-    public static void sendShootEffect(PlayerEntity player, Vec3d origin, Vec3d direction, boolean ejectCasing) {
+    public static void sendShootEffect(PlayerEntity player, Vec3d origin, Vec3d direction, GunItem.CasingType casingType) {
         PacketByteBuf buf = PacketByteBufs.create();
 
-        buf.writeFloat((float) origin.x);
-        buf.writeFloat((float) origin.y);
-        buf.writeFloat((float) origin.z);
+        buf.writeFloat((float)origin.x);
+        buf.writeFloat((float)origin.y);
+        buf.writeFloat((float)origin.z);
 
-        buf.writeFloat((float) direction.x);
-        buf.writeFloat((float) direction.y);
-        buf.writeFloat((float) direction.z);
+        buf.writeFloat((float)direction.x);
+        buf.writeFloat((float)direction.y);
+        buf.writeFloat((float)direction.z);
 
-        buf.writeBoolean(ejectCasing);
+        buf.writeEnumConstant(casingType);
 
         NetworkUtils.sendDataToClient(player, NetworkReg.SHOOT_PACKET_ID, buf);
     }

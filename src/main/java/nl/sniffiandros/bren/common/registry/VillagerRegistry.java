@@ -56,12 +56,12 @@ public class VillagerRegistry {
                                 6, 3, 0.02f
                         );
 
-                        return random.nextFloat() > .4f ? a : new TradeRandomGunEnchantmentFactory(3, 4).create(entity, random);
+                        return random.nextFloat() > 0.4f ? a : new TradeRandomGunEnchantmentFactory(3, 4).create(entity, random);
                     }));
                     factories.add(((entity, random) -> new TradeOffer(
-                            new ItemStack(Items.EMERALD, 3),
-                            new ItemStack(random.nextFloat() < .5f ? ItemReg.MAGAZINE : ItemReg.SHORT_MAGAZINE, 1),
-                            6, 2, 0.03f
+                            new ItemStack(Items.EMERALD, 14),
+                            new ItemStack(random.nextFloat() < 0.75f ? ItemReg.MAGAZINE : ItemReg.SHORT_MAGAZINE, 1),
+                            3, 2, 0.04f
                     )));
                 });
 
@@ -87,9 +87,9 @@ public class VillagerRegistry {
         TradeOfferHelper.registerVillagerOffers(GUNSMITH,3,
                 factories -> {
                     factories.add(((entity, random) -> new TradeOffer(
-                            new ItemStack(Items.EMERALD, 20),
+                            new ItemStack(Items.EMERALD, 28),
                             new ItemStack(ItemReg.AUTO_LOADER_CONTRAPTION, 1),
-                            6, 10, 0.03f
+                            3, 10, 0.04f
                     )));
                     factories.add(new TradeRandomGunEnchantmentFactory(6, 12));
                 });
@@ -97,9 +97,9 @@ public class VillagerRegistry {
         TradeOfferHelper.registerVillagerOffers(GUNSMITH,4,
                 factories -> {
                     factories.add(((entity, random) -> new TradeOffer(
-                            new ItemStack(Items.EMERALD, 2),
-                            new ItemStack(random.nextFloat() < .5 ? ItemReg.BULLET : ItemReg.SHELL, 16),
-                            12, 14, 0.03f
+                            new ItemStack(Items.EMERALD, 4),
+                            new ItemStack(random.nextFloat() < 0.6f ? ItemReg.BULLET : ItemReg.SHELL, 4),
+                            12, 14, 0.02f
                     )));
                     factories.add(((entity, random) -> {
                         TradeOffer a = new TradeOffer(
@@ -108,15 +108,15 @@ public class VillagerRegistry {
                                 12, 17, 0.03f
                         );
 
-                        return random.nextFloat() > .5f ? a : new TradeClothedMagFactory(4, 15).create(entity, random);
+                        return random.nextFloat() > 0.5f ? a : new TradeClothedMagFactory(4, 15).create(entity, random);
                     }));
                 });
 
         TradeOfferHelper.registerVillagerOffers(GUNSMITH,5,
                 factories -> {
                     factories.add(((entity, random) -> new TradeOffer(
-                            new ItemStack(Items.EMERALD, 2),
-                            new ItemStack(random.nextFloat() < .5 ? ItemReg.BULLET : ItemReg.SHELL, 16),
+                            new ItemStack(Items.EMERALD, 3),
+                            new ItemStack(random.nextFloat() < 0.4f ? ItemReg.BULLET : ItemReg.SHELL, 4),
                             15, 14, 0.03f
                     )));
                     factories.add(new TradeRandomGunFactory(20, 17));

@@ -31,13 +31,13 @@ public class TradeClothedMagFactory implements TradeOffers.Factory {
         int i = random.nextInt(3) + 1;
         List<DyeItem> list = new ArrayList<>();
 
-        for (int i1 = 0; i1 < i; ++i1){
+        for (int j = 0; j < i; ++j){
             DyeColor color = DyeColor.byId(random.nextInt(15));
             DyeItem dyeItem = DyeItem.byColor(color);
             list.add(dyeItem);
         }
 
-        ItemStack clothed_mag = DyeableItem.blendAndSetColor(stack,list);
-        return new TradeOffer(new ItemStack(Items.EMERALD,this.price), clothed_mag,12,this.exp,.26f);
+        ItemStack clothedMag = DyeableItem.blendAndSetColor(stack, list);
+        return new TradeOffer(new ItemStack(Items.EMERALD, this.price), clothedMag, 12, this.exp, 0.26f);
     }
 }

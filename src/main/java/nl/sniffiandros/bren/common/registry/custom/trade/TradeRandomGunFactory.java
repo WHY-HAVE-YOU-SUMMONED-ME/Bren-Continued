@@ -13,17 +13,17 @@ import net.minecraft.village.TradeOffers;
 import nl.sniffiandros.bren.common.registry.ItemReg;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Set;
+import java.util.List;
 
 public class TradeRandomGunFactory implements TradeOffers.Factory {
 
-    private static final Set<Item> GUNS = ImmutableList.of(
+    private static final List<Item> GUNS = ImmutableList.of(
             ItemReg.MACHINE_GUN,
             ItemReg.AUTO_GUN,
             ItemReg.RIFLE,
             ItemReg.SHOTGUN,
             ItemReg.REVOLVER
-    ).stream().collect(ImmutableSet.toImmutableSet());
+    );
 
     private final int price;
     private final int exp;
@@ -36,7 +36,7 @@ public class TradeRandomGunFactory implements TradeOffers.Factory {
     @Nullable
     @Override
     public TradeOffer create(Entity entity, Random random) {
-        Item item = (Item)GUNS.toArray()[random.nextBetween(0, GUNS.size())];
+        Item item = GUNS.get(random.nextBetween(0, GUNS.size() - 1));
 
         int i = 5 + random.nextInt(15);
         ItemStack itemStack = EnchantmentHelper.enchant(random, new ItemStack(item), i, false);

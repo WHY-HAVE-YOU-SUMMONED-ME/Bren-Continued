@@ -4,36 +4,20 @@ import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
-import net.minecraft.advancement.criterion.Criteria;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.*;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
 import net.minecraft.registry.tag.TagKey;
-import net.minecraft.util.Identifier;
 import nl.sniffiandros.bren.common.config.MConfig;
-import nl.sniffiandros.bren.common.entity.BulletEntity;
 import nl.sniffiandros.bren.common.registry.*;
 import nl.sniffiandros.bren.common.registry.custom.types.*;
-import nl.sniffiandros.bren.common.registry.custom.criterion.LongShootingCriterion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Bren implements ModInitializer {
 	public static final String MODID = "bren";
-    public static final Logger LOGGER = LoggerFactory.getLogger(MODID);
+    public static final Logger LOGGER = LoggerFactory.getLogger("Bren");
 	public static final int UNIVERSAL_AMMO_COLOR = 0xFFAE00;
-
-	public static final EntityType<BulletEntity> BULLET = Registry.register(Registries.ENTITY_TYPE, new Identifier(MODID,
-			"bullet"), FabricEntityTypeBuilder.<BulletEntity>create(SpawnGroup.MISC, BulletEntity::new).trackRangeChunks(10)
-			.dimensions(EntityDimensions.fixed(0.35f, 0.35f)).disableSaving().build());
-
-	public static LongShootingCriterion LONG_SHOOTING = Criteria.register(new LongShootingCriterion());
 
 	@Override
 	public void onInitialize() {
@@ -64,8 +48,8 @@ public class Bren implements ModInitializer {
 			MagazineItem cm = (MagazineItem) ItemReg.CLOTHED_MAGAZINE;
 			MagazineItem sm = (MagazineItem) ItemReg.SHORT_MAGAZINE;
 			ItemStack mag = mag(m);
-			ItemStack clothed_mag = mag(cm);
-			ItemStack short_mag = mag(sm);
+			ItemStack clothedMag = mag(cm);
+			ItemStack shortMag = mag(sm);
 
 			content.addAfter(Items.CROSSBOW, ItemReg.MACHINE_GUN);
 			content.addAfter(ItemReg.MACHINE_GUN, ItemReg.AUTO_GUN);
@@ -80,9 +64,9 @@ public class Bren implements ModInitializer {
 			content.addAfter(Items.DIAMOND_HORSE_ARMOR, ItemReg.MAGAZINE);
 			content.addAfter(ItemReg.MAGAZINE, mag);
 			content.addAfter(mag, ItemReg.CLOTHED_MAGAZINE);
-			content.addAfter(ItemReg.CLOTHED_MAGAZINE, clothed_mag);
-			content.addAfter(clothed_mag, ItemReg.SHORT_MAGAZINE);
-			content.addAfter(ItemReg.SHORT_MAGAZINE, short_mag);
+			content.addAfter(ItemReg.CLOTHED_MAGAZINE, clothedMag);
+			content.addAfter(clothedMag, ItemReg.SHORT_MAGAZINE);
+			content.addAfter(ItemReg.SHORT_MAGAZINE, shortMag);
 			content.addAfter(Items.ARROW, ItemReg.BULLET);
 			content.addAfter(ItemReg.BULLET, ItemReg.SHELL);
 		});
