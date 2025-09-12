@@ -19,7 +19,7 @@ public class KeyBindingReg {
     public static void registerKeyInputs() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (reloadKey.wasPressed()) {
-                if (client.player instanceof IGunUser gunUser) {
+                if (client.player instanceof IGunUser gunUser && gunUser.canReload()) {
                     gunUser.setGunState(GunHelper.GunStates.RELOADING);
                 }
                 ClientPlayNetworking.send(NetworkReg.RELOAD_PACKET_ID, PacketByteBufs.empty());

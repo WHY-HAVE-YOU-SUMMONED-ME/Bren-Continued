@@ -10,7 +10,7 @@ public interface IGunUser {
 
     boolean isShooting();
 
-    boolean canShoot(Predicate<ItemStack> predicate);
+    boolean canShoot();
 
     void setGunTicks(int t);
 

@@ -55,8 +55,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IGunUser
     }
 
     @Override
-    public boolean canShoot(Predicate<ItemStack> predicate) {
-        return predicate.test(this.getMainHandStack()) && !this.isDead();
+    public boolean canShoot() {
+        return !this.getItemCooldownManager().isCoolingDown(this.getMainHandStack().getItem()) && !this.isDead();
     }
 
     @Override
@@ -88,31 +88,25 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IGunUser
     }
 
     public void handleShooting() {
-        ItemCooldownManager c = this.getItemCooldownManager();
+        ItemStack stack = this.getMainHandStack();
 
-        if (this.canShoot((stack -> {
-            boolean b = true;
+        if (this.canShoot() && this.isShooting() && stack.getItem() instanceof GunItem gunItem && !gunItem.isEmpty(stack)) {
+            this.setGunState(GunHelper.GunStates.NORMAL);
 
-            if (stack.getItem() instanceof GunItem gunItem) {
-                 b = !gunItem.isEmpty(stack);
-            }
-
-            return !c.isCoolingDown(stack.getItem()) && b;
-        })) && this.isShooting()) {
             int fireRate = GunUtils.fire(this);
             if (fireRate == 0) return;
 
             PlayerEntity player = (PlayerEntity)(Object)this;
 
-            GunItem.startCoolingDown(player, fireRate, false, this.getMainHandStack().getItem().getClass());
+            GunItem.startCoolingDown(player, fireRate, false, gunItem.getClass());
 
-            MEvents.GUN_FIRED_EVENT.invoker().gunFired(player, this.getMainHandStack());
+            MEvents.GUN_FIRED_EVENT.invoker().gunFired(player, stack);
         }
     }
 
     @Override
     public boolean canReload() {
-        return this.canReload;
+        return this.canReload && this.canShoot();
     }
 
     @Override
