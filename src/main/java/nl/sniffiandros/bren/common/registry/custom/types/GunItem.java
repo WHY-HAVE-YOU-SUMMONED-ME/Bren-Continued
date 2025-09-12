@@ -150,13 +150,13 @@ public class GunItem extends ToolItem implements Vanishable {
 
     public static void startCoolingDown(PlayerEntity player, int ticks, boolean isReload, @Nullable Class<?> affectsClass) {
         if (player instanceof IGunUser gunUser) {
+            if (isReload) {
+                gunUser.setCanReload(false);
+                gunUser.setGunState(GunHelper.GunStates.RELOADING);
+            }
             for (Item item : ItemReg.firearmItems) {
                 if (affectsClass == null || item.getClass() == affectsClass) {
                     player.getItemCooldownManager().set(item, ticks);
-                }
-                if (isReload) {
-                    gunUser.setCanReload(false);
-                    gunUser.setGunState(GunHelper.GunStates.RELOADING);
                 }
             }
         } 

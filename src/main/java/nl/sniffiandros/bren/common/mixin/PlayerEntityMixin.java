@@ -21,7 +21,6 @@ import nl.sniffiandros.bren.common.events.MEvents;
 import nl.sniffiandros.bren.common.registry.AttributeReg;
 import nl.sniffiandros.bren.common.registry.custom.types.GunItem;
 import nl.sniffiandros.bren.common.utils.GunHelper;
-import nl.sniffiandros.bren.common.utils.GunHelper.GunStates;
 import nl.sniffiandros.bren.common.utils.GunUtils;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -47,7 +46,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IGunUser
 
     public PlayerEntityMixin(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
         super(EntityType.PLAYER, world);
-        this.setGunState(GunStates.NORMAL);
+        this.setGunState(GunHelper.GunStates.NORMAL);
     }
 
     @Override
@@ -70,15 +69,21 @@ public abstract class PlayerEntityMixin extends LivingEntity implements IGunUser
 
         PlayerEntity player = (PlayerEntity)(Object)this;
 
-        if (this.getGunState().equals(GunHelper.GunStates.RELOADING) && this.getMainHandStack() != this.reloadingGun) {
-            GunItem.startCoolingDown(player, 0, false, this.getMainHandStack().getItem().getClass());
-            this.setGunState(GunHelper.GunStates.NORMAL);
+        if (this.getGunState().equals(GunHelper.GunStates.RELOADING)) {
+            if (this.getMainHandStack() != this.reloadingGun) {
+                GunItem.startCoolingDown(player, 0, false, this.getMainHandStack().getItem().getClass());
+                this.setGunState(GunHelper.GunStates.NORMAL);
+                this.setCanReload(true);
+                return;
+            } else if (this.getMainHandStack().getItem() instanceof GunItem gunItem) {
+                gunItem.reloadTick(this.reloadingGun, this.getWorld(), player, (IGunUser)player);
+            
+                if (!player.getItemCooldownManager().isCoolingDown(gunItem)) {
+                    this.setGunState(GunHelper.GunStates.NORMAL);
+                }
+            }
+        } else {
             this.setCanReload(true);
-            return;
-        }
-
-        if (this.getMainHandStack().getItem() instanceof GunItem gunItem && this.getGunState().equals(GunHelper.GunStates.RELOADING)) {
-            gunItem.reloadTick(this.reloadingGun, this.getWorld(), player, (IGunUser)player);
         }
     }
 

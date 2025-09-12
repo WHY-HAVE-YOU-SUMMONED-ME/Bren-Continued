@@ -16,7 +16,7 @@ public class ShotgunItem extends BulletOnlyGun {
                 .rangedDamage(damage)
                 .fireRate(22)
                 .recoil(30f)
-                .effectiveDistance(8f)
+                .effectiveDistance(10f)
                 .shootSound(SoundReg.ITEM_SHOTGUN_SHOOT, null),
             8
         );

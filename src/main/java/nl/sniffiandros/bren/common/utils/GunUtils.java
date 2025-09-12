@@ -9,7 +9,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.EntityAnimationS2CPacket;
@@ -41,6 +40,7 @@ import nl.sniffiandros.bren.common.registry.custom.types.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public class GunUtils {
@@ -242,21 +242,11 @@ public class GunUtils {
             Vec3d rayEnd = rayStart.add(rayDirection.multiply(maxDistance));
             Vec3d hitOffset = null;
 
-            BlockHitResult blockHit = user.getWorld().raycast(new RaycastContext(rayStart, rayEnd, ShapeType.OUTLINE, FluidHandling.NONE, user));
+            BlockHitResult blockHit = user.getWorld().raycast(new RaycastContext(rayStart, rayEnd, ShapeType.COLLIDER, FluidHandling.NONE, user));
+            
             double maxEntityDistance = blockHit.getPos().subtract(rayStart).lengthSquared();
 
-            EntityHitResult entityHit = ProjectileUtil.raycast(
-                user,
-                rayStart,
-                rayEnd,
-                box,
-                entity -> (
-                    !entity.isSpectator() &&
-                    entity.canHit() &&
-                    !entityBlacklist.contains(entity.getId())
-                ),
-                maxEntityDistance
-            );
+            EntityHitResult entityHit = GunUtils.raytraceForEntites(user, rayDirection, maxEntityDistance, entityBlacklist);
 
             if (GunUtils.processBulletImpact(user, entityHit, headshotMultiplier)) {
                 hitOffset = entityHit.getPos().subtract(rayStart.add(rayDirection));
@@ -293,6 +283,25 @@ public class GunUtils {
                 airRingPos = airRingPos.multiply(f, f, f);
             }
         }
+    }
+
+    public static EntityHitResult raytraceForEntites(Entity user, Vec3d direction, double maxDistance, Set<Integer> entityBlacklist) {
+        World world = user.getWorld();
+        Vec3d startPosition = user.getCameraPosVec(1f);
+        int steps = (int)Math.ceil(maxDistance / 32d);
+        
+        for (int i = 0; i < steps; i++) {
+            Vec3d rayPos = startPosition.add(direction.multiply(i * 32d));
+            Box box = Box.of(rayPos, 96d, 96d, 96d);
+            
+            for (Entity entity : world.getOtherEntities(user, box, entity -> !entity.isSpectator() && entity.canHit() && !entityBlacklist.contains(entity.getId()))) {
+                Optional<Vec3d> hitPos = entity.getBoundingBox().expand(0.5d).raycast(startPosition, rayPos);
+                if (hitPos.isPresent()) {
+                    return new EntityHitResult(entity, hitPos.get());
+                }
+            }
+        }
+        return null;
     }
 
     public static float getHeadshotDamageMultiplier(ItemStack stack) {

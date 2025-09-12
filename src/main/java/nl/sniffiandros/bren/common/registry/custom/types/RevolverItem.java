@@ -24,7 +24,7 @@ public class RevolverItem extends BulletOnlyGun {
                 .rangedDamage(damage)
                 .fireRate(6)
                 .recoil(6f)
-                .effectiveDistance(30f)
+                .effectiveDistance(40f)
                 .shootSound(SoundReg.ITEM_REVOLVER_SHOOT, null),
             6
         );
@@ -81,7 +81,7 @@ public class RevolverItem extends BulletOnlyGun {
         if (entity instanceof IGunUser gunUser && entity instanceof PlayerEntity player) {
             ItemCooldownManager cooldownManager = player.getItemCooldownManager();
             if (selected) {
-                float f = cooldownManager.getCooldownProgress(stack.getItem(), 1);
+                float f = cooldownManager.getCooldownProgress(stack.getItem(), 1f);
 
                 if (gunUser.getGunState() == GunHelper.GunStates.RELOADING) {
                     if (f == 0.5f) {

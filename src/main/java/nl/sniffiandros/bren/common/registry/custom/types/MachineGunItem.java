@@ -13,7 +13,7 @@ public class MachineGunItem extends GunWithMagItem {
                 .rangedDamage(damage)
                 .fireRate(3)
                 .recoil(10f)
-                .effectiveDistance(40f)
+                .effectiveDistance(60f)
                 .shootSound(SoundReg.ITEM_MACHINE_GUN_SHOOT, SoundReg.ITEM_MACHINE_GUN_SHOOT_SILENCED)
         );
     }

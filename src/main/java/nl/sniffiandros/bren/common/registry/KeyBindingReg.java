@@ -6,6 +6,9 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import nl.sniffiandros.bren.common.entity.IGunUser;
+import nl.sniffiandros.bren.common.utils.GunHelper;
+
 import org.lwjgl.glfw.GLFW;
 
 public class KeyBindingReg {
@@ -14,8 +17,11 @@ public class KeyBindingReg {
     public static KeyBinding reloadKey;
 
     public static void registerKeyInputs() {
-        ClientTickEvents.START_CLIENT_TICK.register(client -> {
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (reloadKey.wasPressed()) {
+                if (client.player instanceof IGunUser gunUser) {
+                    gunUser.setGunState(GunHelper.GunStates.RELOADING);
+                }
                 ClientPlayNetworking.send(NetworkReg.RELOAD_PACKET_ID, PacketByteBufs.empty());
             }
         });

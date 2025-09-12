@@ -14,7 +14,6 @@ import nl.sniffiandros.bren.common.entity.IGunUser;
 import nl.sniffiandros.bren.common.registry.EnchantmentReg;
 import nl.sniffiandros.bren.common.registry.ItemReg;
 import nl.sniffiandros.bren.common.registry.custom.enchantment.AutofillEnchantment;
-import nl.sniffiandros.bren.common.utils.GunHelper;
 
 public class BulletOnlyGun extends GunItem {
     public int capacity;
@@ -92,9 +91,7 @@ public class BulletOnlyGun extends GunItem {
 
                 afterInserted(stack, player);
             }
-            gunUser.setGunState(GunHelper.GunStates.NORMAL);
-            gunUser.setCanReload(true);
-        } else if (cooldownManager.getCooldownProgress(stack.getItem(), 1) == 0 && getContents(stack) == getMaxCapacity(stack) - 1) {
+        } else if (cooldownManager.getCooldownProgress(stack.getItem(), 1f) == 0f && getContents(stack) == getMaxCapacity(stack) - 1) {
             onFullyLoaded(stack, player);
         }
     }

@@ -72,7 +72,7 @@ public class ItemRendererMixin {
                     ItemCooldownManager cooldownManager = player.getItemCooldownManager();
 
                     float f1 = cooldownManager.getCooldownProgress(item.getItem(), delta);
-                    f1 = Math.max(f1 - 0.15f, 0);
+                    f1 = Math.max(f1 - 0.15f, 0f);
 
                     boolean reloading = gunUser.getGunState().equals(GunHelper.GunStates.RELOADING);
                     boolean isRevolver = gunItem instanceof RevolverItem;

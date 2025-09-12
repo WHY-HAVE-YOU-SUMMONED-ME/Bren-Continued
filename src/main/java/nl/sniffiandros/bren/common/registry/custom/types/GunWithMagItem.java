@@ -14,7 +14,6 @@ import net.minecraft.world.World;
 import nl.sniffiandros.bren.common.Bren;
 import nl.sniffiandros.bren.common.entity.IGunUser;
 import nl.sniffiandros.bren.common.registry.SoundReg;
-import nl.sniffiandros.bren.common.utils.GunHelper;
 
 public class GunWithMagItem extends GunItem {
 
@@ -191,8 +190,6 @@ public class GunWithMagItem extends GunItem {
                 GunWithMagItem.putMagazine(stack, mag, player);
                 mag.decrement(1);
             }
-            gunUser.setGunState(GunHelper.GunStates.NORMAL);
-            gunUser.setCanReload(true);
         } else if (cooldownManager.getCooldownProgress(stack.getItem(), 1) == 0.75f && !GunWithMagItem.hasMagazine(stack)) {
             playSound(player, SoundReg.ITEM_MAGAZINE_INSERT);
         }
