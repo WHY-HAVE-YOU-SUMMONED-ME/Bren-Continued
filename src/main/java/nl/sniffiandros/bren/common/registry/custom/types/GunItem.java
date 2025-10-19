@@ -90,7 +90,7 @@ public class GunItem extends ToolItem implements Vanishable {
 
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
-        tooltip.add(Text.literal(getContents(stack) + " ").append(Text.translatable(String.format("desc.%s.item.gun_with_mag.content", Bren.MODID)))
+        tooltip.add(Text.literal(String.valueOf(getContents(stack))).append(Text.translatable(String.format("desc.%s.item.gun_with_mag.content", Bren.MODID)))
 					.formatted(Formatting.GRAY));
         super.appendTooltip(stack, world, tooltip, context);
     }

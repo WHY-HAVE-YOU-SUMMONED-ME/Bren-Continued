@@ -16,7 +16,6 @@ import nl.sniffiandros.bren.common.entity.IGunUser;
 import nl.sniffiandros.bren.common.registry.SoundReg;
 
 public class GunWithMagItem extends GunItem {
-
     private final TagKey<Item> compatibleMagazines;
 
     public GunWithMagItem(Settings settings, ToolMaterial material, TagKey<Item> compatibleMagazines, GunProperties gunProperties) {

@@ -26,7 +26,7 @@
   "enchantment.bren.skull_crusher": "Skull Crusher",
   
   "desc.bren.item.auto_loader_contraption": "Banned in most places",
-  "desc.bren.item.gun_with_mag.content": "Rounds",
+  "desc.bren.item.gun_with_mag.content": " Rounds",
   "desc.bren.item.magazine.content": "Ammo",
 
   "block.bren.workbench": "Workbench",
@@ -53,8 +53,8 @@
   "attribute.name.recoil": "Recoil",
   "attribute.name.effective_distance": "Effective Distance",
 
-  "advancements.bren.adventure.auto_loader_contraption.description": "Obtain an Auto Loader Contraption",
-  "advancements.bren.adventure.auto_loader_contraption.title": "A whaaa...?!",
+  "advancements.bren.adventure.auto_loader_contraption.description": "Obtain the Auto Loader Contraption from a Gunsmith",
+  "advancements.bren.adventure.auto_loader_contraption.title": "Warmonger",
 
   "advancements.bren.adventure.machine_gun.description": "Obtain a Machine Gun",
   "advancements.bren.adventure.machine_gun.title": "Heavy Machine Gun",
