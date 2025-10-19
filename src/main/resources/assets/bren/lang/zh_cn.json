@@ -1,0 +1,76 @@
+{
+  "item.bren.machine_gun": "机枪",
+  "item.bren.auto_gun": "步枪",
+  "item.bren.rifle": "狙击枪",
+  "item.bren.shotgun": "霰弹枪",
+  "item.bren.revolver": "左轮",
+  "item.bren.netherite_machine_gun": "下界合金机枪",
+  "item.bren.netherite_auto_gun": "下界合金步枪",
+  "item.bren.netherite_rifle": "下界合金狙击枪",
+  "item.bren.netherite_shotgun": "下界合金霰弹枪",
+  "item.bren.netherite_revolver": "下界合金左轮",
+
+  "item.bren.magazine": "弹匣",
+  "item.bren.short_magazine": "小型桥夹",
+  "item.bren.clothed_magazine": "带布的弹匣",
+  "item.bren.bullet": "子弹",
+  "item.bren.shell": "霰弹",
+  "item.bren.metal_tube": "铁管",
+  "item.bren.auto_loader_contraption": "全自动枪机",
+
+  "enchantment.bren.silenced": "消音",
+  "enchantment.bren.overflow": "溢出",
+  "enchantment.bren.autofill": "自动装填",
+  "enchantment.bren.steady_hands": "稳定",
+  "enchantment.bren.penetrating": "贯穿",
+  "enchantment.bren.skull_crusher": "碎颅",
+  
+  "desc.bren.item.auto_loader_contraption": "在大多数地方都被禁止",
+  "desc.bren.item.gun_with_mag.content": "发子弹",
+  "desc.bren.item.magazine.content": "发子弹",
+
+  "block.bren.workbench": "制枪台",
+
+  "entity.minecraft.villager.gunsmith": "军火商",
+
+  "bren.item.shoot_silenced": "被消音的枪声",
+  "bren.item.shoot": "枪声",
+  "bren.item.distant_gunfire": "枪声",
+  "bren.item.magazine_insert": "装入供弹具",
+  "bren.item.magazine_remove": "取出供弹具",
+  "bren.item.shell_insert": "霰弹枪：装弹",
+  "bren.item.rack": "霰弹枪：上弹",
+  "bren.particle.casing.bounce": "弹壳：蹦跳",
+  "bren.entity.villager.work_gunsmith": "军火商：工作",
+  "bren.item.revolver.bullet_insert": "左轮：装弹",
+  "bren.item.revolver.reload": "左轮：上膛",
+  "bren.item.revolver.spinning": "左轮：旋转",
+
+  "key.bren.reload": "换弹 / 装填弹匣",
+
+  "attribute.name.ranged_damage": "子弹伤害",
+  "attribute.name.fire_rate": "射速",
+  "attribute.name.recoil": "后坐力",
+  "attribute.name.effective_distance": "有效距离",
+
+  "advancements.bren.adventure.auto_loader_contraption.description": "Obtain an Auto Loader Contraption",
+  "advancements.bren.adventure.auto_loader_contraption.title": "A whaaa...?!",
+
+  "advancements.bren.adventure.machine_gun.description": "Obtain a Machine Gun",
+  "advancements.bren.adventure.machine_gun.title": "Heavy Machine Gun",
+
+  "advancements.bren.adventure.auto_gun.description": "Obtain an Auto-Gun",
+  "advancements.bren.adventure.auto_gun.title": "Terrorists Win",
+
+  "advancements.bren.adventure.rifle.description": "Obtain a Rifle",
+  "advancements.bren.adventure.rifle.title": "See you in five minutes...",
+
+  "advancements.bren.adventure.shotgun.description": "Obtain a Shotgun",
+  "advancements.bren.adventure.shotgun.title": "BAM!!",
+
+  "advancements.bren.adventure.revolver.description": "Obtain a Revolver",
+  "advancements.bren.adventure.revolver.title": "Little Jimmy",
+
+  "advancements.bren.adventure.warcrimes.description": "Kill a Villager with a Gun",
+  "advancements.bren.adventure.warcrimes.title": "War Crimes"
+}
