@@ -34,7 +34,7 @@ public class ShotgunItem extends BulletOnlyGun {
 
     @Override
     public float spread() {
-        return 8f;
+        return 12f;
     }
 
     @Override
