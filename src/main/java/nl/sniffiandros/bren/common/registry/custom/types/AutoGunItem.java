@@ -12,7 +12,7 @@ public class AutoGunItem extends GunWithMagItem {
             new GunProperties()
                 .rangedDamage(damage)
                 .fireRate(5)
-                .recoil(9f)
+                .recoil(8f)
                 .effectiveDistance(100f)
                 .shootSound(SoundReg.ITEM_AUTO_GUN_SHOOT, SoundReg.ITEM_AUTO_GUN_SHOOT_SILENCED)
         );

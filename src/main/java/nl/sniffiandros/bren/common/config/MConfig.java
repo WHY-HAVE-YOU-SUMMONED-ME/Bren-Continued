@@ -41,7 +41,7 @@ public class MConfig {
             "The recoil multiplier, so 0 is no recoil");
     
     @Entry
-    public static final ConfigHelper.FloatValue sneakingRecoilMultiplier = new ConfigHelper.FloatValue(0.5f,
+    public static final ConfigHelper.FloatValue sneakingRecoilMultiplier = new ConfigHelper.FloatValue(0.75f,
             "Only applies when the player is sneaking");
     
     @Entry
@@ -49,7 +49,7 @@ public class MConfig {
             "General damage multiplier for all guns");
 
     @Entry
-    public static final ConfigHelper.FloatValue headshotMultiplier = new ConfigHelper.FloatValue(1.5f,
+    public static final ConfigHelper.FloatValue headshotMultiplier = new ConfigHelper.FloatValue(2f,
             "1 to keep the visuals, less than 1 to disable completely");
     
     @Entry

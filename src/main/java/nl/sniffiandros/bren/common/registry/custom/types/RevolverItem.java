@@ -23,8 +23,8 @@ public class RevolverItem extends BulletOnlyGun {
             new GunProperties()
                 .rangedDamage(damage)
                 .fireRate(6)
-                .recoil(6f)
-                .effectiveDistance(40f)
+                .recoil(12f)
+                .effectiveDistance(30f)
                 .shootSound(SoundReg.ITEM_REVOLVER_SHOOT, null),
             6
         );

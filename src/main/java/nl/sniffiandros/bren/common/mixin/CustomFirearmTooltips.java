@@ -54,7 +54,7 @@ public abstract class CustomFirearmTooltips {
 
         } else if (attributeID == AttributeReg.RECOIL_MODIFIER_ID) {
             insertion = "˚";
-            value *= 1 - Math.min(EnchantmentHelper.getLevel(EnchantmentReg.STEADY_HANDS, (ItemStack)(Object)this) * 0.125d, 1.0d);
+            value *= 1d - Math.min(EnchantmentHelper.getLevel(EnchantmentReg.STEADY_HANDS, (ItemStack)(Object)this) * 0.125d, 1.0d);
 
             if (player != null) {
                 value += player.getAttributeBaseValue(AttributeReg.RECOIL);
@@ -62,6 +62,7 @@ public abstract class CustomFirearmTooltips {
 
         } else if (attributeID == AttributeReg.EFFECTIVE_DISTANCE_MODIFIER_ID) {
             insertion = "m";
+            value *= 1d + (EnchantmentHelper.getLevel(EnchantmentReg.PENETRATING, (ItemStack)(Object)this) * 0.25d);
             
             if (player != null) {
                 value += player.getAttributeBaseValue(AttributeReg.EFFECTIVE_DISTANCE);

@@ -172,12 +172,8 @@ public class GunItem extends ToolItem implements Vanishable {
         );
     }
 
-    public float bulletTravelDistance() {
-        return 128f;
-    }
-
     public float spread() {
-        return 0f;
+        return 1f;
     }
 
     public int bulletAmount() {

@@ -14,8 +14,14 @@ public class RifleItem extends GunWithMagItem {
                 .rangedDamage(damage)
                 .fireRate(30)
                 .recoil(22f)
-                .effectiveDistance(500f)
+                .effectiveDistance(300f)
                 .shootSound(SoundReg.ITEM_RIFLE_SHOOT, SoundReg.ITEM_RIFLE_SHOOT_SILENCED)
         );
     }
+
+    @Override
+    public float spread() {
+        return 0f;
+    }
 }
+

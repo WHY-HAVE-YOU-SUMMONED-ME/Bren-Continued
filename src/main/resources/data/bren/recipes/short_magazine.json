@@ -6,12 +6,11 @@
       "item": "minecraft:bowl"
     },
     "I": {
-      "item": "minecraft:iron_ingot"
+      "item": "minecraft:iron_block"
     }
   },
   "pattern": [
-    "IMI",
-    " I "
+    "IMI"
   ],
   "result": {
     "item": "bren:short_magazine"

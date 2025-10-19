@@ -24,20 +24,20 @@ import java.util.ArrayList;
 public class ItemReg {
     public static List<Item> firearmItems = new ArrayList<>();
 
-    public static final Item MACHINE_GUN = registerItem("machine_gun", new MachineGunItem(new FabricItemSettings(), ToolMaterials.IRON, 4.5f));
-    public static final Item NETHERITE_MACHINE_GUN = registerItem("netherite_machine_gun", new MachineGunItem(new FabricItemSettings().fireproof(), ToolMaterials.NETHERITE, 5f));
+    public static final Item MACHINE_GUN = registerItem("machine_gun", new MachineGunItem(new FabricItemSettings(), ToolMaterials.IRON, 12f));
+    public static final Item NETHERITE_MACHINE_GUN = registerItem("netherite_machine_gun", new MachineGunItem(new FabricItemSettings().fireproof(), ToolMaterials.NETHERITE, 15f));
 
-    public static final Item AUTO_GUN = registerItem("auto_gun", new AutoGunItem(new FabricItemSettings(), ToolMaterials.IRON, 6f));
-    public static final Item NETHERITE_AUTO_GUN = registerItem("netherite_auto_gun", new AutoGunItem(new FabricItemSettings().fireproof(), ToolMaterials.NETHERITE, 7f));
+    public static final Item AUTO_GUN = registerItem("auto_gun", new AutoGunItem(new FabricItemSettings(), ToolMaterials.IRON, 16f));
+    public static final Item NETHERITE_AUTO_GUN = registerItem("netherite_auto_gun", new AutoGunItem(new FabricItemSettings().fireproof(), ToolMaterials.NETHERITE, 20f));
 
-    public static final Item RIFLE = registerItem("rifle", new RifleItem(new FabricItemSettings(), ToolMaterials.IRON, 10f));
-    public static final Item NETHERITE_RIFLE = registerItem("netherite_rifle", new RifleItem(new FabricItemSettings().fireproof(), ToolMaterials.NETHERITE, 12f));
+    public static final Item RIFLE = registerItem("rifle", new RifleItem(new FabricItemSettings(), ToolMaterials.IRON, 25f));
+    public static final Item NETHERITE_RIFLE = registerItem("netherite_rifle", new RifleItem(new FabricItemSettings().fireproof(), ToolMaterials.NETHERITE, 30f));
 
-    public static final Item SHOTGUN = registerItem("shotgun", new ShotgunItem(new FabricItemSettings(), ToolMaterials.IRON, 4f));
-    public static final Item NETHERITE_SHOTGUN = registerItem("netherite_shotgun", new ShotgunItem(new FabricItemSettings().fireproof(), ToolMaterials.NETHERITE, 4.5f));
+    public static final Item SHOTGUN = registerItem("shotgun", new ShotgunItem(new FabricItemSettings(), ToolMaterials.IRON, 10f));
+    public static final Item NETHERITE_SHOTGUN = registerItem("netherite_shotgun", new ShotgunItem(new FabricItemSettings().fireproof(), ToolMaterials.NETHERITE, 12f));
 
-    public static final Item REVOLVER = registerItem("revolver", new RevolverItem(new FabricItemSettings(), ToolMaterials.IRON, 4f));
-    public static final Item NETHERITE_REVOLVER = registerItem("netherite_revolver", new RevolverItem(new FabricItemSettings().fireproof(), ToolMaterials.NETHERITE, 7f));
+    public static final Item REVOLVER = registerItem("revolver", new RevolverItem(new FabricItemSettings(), ToolMaterials.IRON, 7f));
+    public static final Item NETHERITE_REVOLVER = registerItem("netherite_revolver", new RevolverItem(new FabricItemSettings().fireproof(), ToolMaterials.NETHERITE, 14f));
 
     public static final Item MAGAZINE = registerItem("magazine", new MagazineItem(new FabricItemSettings(), 20));
     public static final Item CLOTHED_MAGAZINE = registerItem("clothed_magazine", new ColorableMagazineItem(new FabricItemSettings(), 20));
@@ -63,5 +63,5 @@ public class ItemReg {
         return Registry.register(Registries.ITEM, new Identifier(Bren.MODID, name), item);
     }
 
-    public static void reg(){}
+    public static void reg() {};
 }

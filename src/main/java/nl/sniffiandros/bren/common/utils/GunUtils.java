@@ -96,9 +96,9 @@ public class GunUtils {
                 GunUtils.raytraceGunshot(
                     user,
                     new Vec2f(x, y),
-                    user.getAttributeValue(AttributeReg.EFFECTIVE_DISTANCE),
+                    user.getAttributeValue(AttributeReg.EFFECTIVE_DISTANCE) * (1 + (EnchantmentHelper.getLevel(EnchantmentReg.PENETRATING, stack) * 0.25d)),
                     EnchantmentHelper.getLevel(EnchantmentReg.PENETRATING, stack),
-                    getHeadshotDamageMultiplier(stack)
+                    isStrongHeadshot(stack)
                 );
             }
         }
@@ -168,35 +168,44 @@ public class GunUtils {
         }
     }
 
-    public static boolean processBulletImpact(LivingEntity user, HitResult hit, float headshotMultiplier) {
+    public static boolean processBulletImpact(LivingEntity user, HitResult hit, boolean strongHeadshot) {
         World world = user.getWorld();
 
         if (hit instanceof EntityHitResult entityHit) {
-            if (entityHit.getEntity() instanceof LivingEntity livingEntity) {
-                if (headshotMultiplier >= 1f) {
-                    double eyeHeight = livingEntity.getEyeY();
-                    double hitY = entityHit.getPos().getY();
+            Entity entity = entityHit.getEntity();
 
-                    if (hitY >= eyeHeight - (livingEntity.getBoundingBox().maxY - eyeHeight)) {
-                        world.playSound(null, livingEntity.getX(), livingEntity.getY(), livingEntity.getZ(), SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, user.getSoundCategory(), 2f, 1f);
-                        if (world instanceof ServerWorld serverWorld) {
-                            serverWorld.getChunkManager().sendToNearbyPlayers(user, new EntityAnimationS2CPacket(livingEntity, EntityAnimationS2CPacket.CRIT));
-                        }
-                    } else {
-                        headshotMultiplier = 1f;
-                    }
-                } else {
+            boolean headshot = false;
+            float headshotMultiplier = strongHeadshot ? MConfig.strongHeadshotMultiplier.get() : MConfig.headshotMultiplier.get();
+
+            if (headshotMultiplier >= 1f) {
+                double eyeHeight = entity.getEyeY();
+                double hitY = entityHit.getPos().getY();
+
+                headshot = (hitY >= eyeHeight - (entity.getBoundingBox().maxY - eyeHeight));
+
+                if (!headshot) {
                     headshotMultiplier = 1f;
                 }
-
-                double damage = user.getAttributeValue(AttributeReg.RANGED_DAMAGE) * headshotMultiplier;
-                double effectiveDistance = user.getAttributeValue(AttributeReg.EFFECTIVE_DISTANCE) / 2d;
-
-                damage *= 1d - Math.max(0d, (livingEntity.distanceTo(user) - effectiveDistance) / effectiveDistance);
-
-                livingEntity.damage(livingEntity.getDamageSources().create(DamageTypes.ARROW, user), (float)damage);
-                livingEntity.timeUntilRegen = 0;
+            } else {
+                headshotMultiplier = 1f;
             }
+
+            double damage = user.getAttributeValue(AttributeReg.RANGED_DAMAGE) * headshotMultiplier;
+            double effectiveDistance = user.getAttributeValue(AttributeReg.EFFECTIVE_DISTANCE) / 2d;
+
+            damage *= 1d - Math.max(0d, (entity.distanceTo(user) - effectiveDistance) / effectiveDistance);
+
+            if (damage > 0d && entity.damage(entity.getDamageSources().create(DamageTypes.ARROW, user), (float)damage) && headshot) {
+                world.playSound(null, entity.getX(), entity.getY(), entity.getZ(), SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, user.getSoundCategory(), 2f, 1f);
+                if (world instanceof ServerWorld serverWorld) {
+                    serverWorld.getChunkManager().sendToNearbyPlayers(user, new EntityAnimationS2CPacket(entity, EntityAnimationS2CPacket.CRIT));
+                    if (strongHeadshot) {
+                        serverWorld.getChunkManager().sendToNearbyPlayers(user, new EntityAnimationS2CPacket(entity, EntityAnimationS2CPacket.ENCHANTED_HIT));
+                    }
+                }
+            }
+            entity.timeUntilRegen = 0;
+
             return true;
         } else if (hit instanceof BlockHitResult blockHit) {
             BlockPos pos = blockHit.getBlockPos();
@@ -223,36 +232,40 @@ public class GunUtils {
         return false;
     }
 
-    public static boolean processBulletImpact(Entity user, HitResult hit, float headshotMultiplier) {
+    public static boolean processBulletImpact(Entity user, HitResult hit, boolean strongHeadshot) {
         if (user instanceof LivingEntity livingEntity) {
-            return GunUtils.processBulletImpact(livingEntity, hit, headshotMultiplier);
+            return GunUtils.processBulletImpact(livingEntity, hit, strongHeadshot);
         }
         return false;
     }
 
-    public static void raytraceGunshot(LivingEntity user, Vec2f spread, double maxDistance, int penetratingLevel, float headshotMultiplier) {
+    public static void raytraceGunshot(LivingEntity user, Vec2f spread, double maxDistance, int penetratingLevel, boolean strongHeadshot) {
         maxDistance = Math.min(maxDistance, user.getServer().getPlayerManager().getViewDistance() * 16d);
         
         Vec3d rayStart = user.getCameraPosVec(1f);
         Vec3d rayDirection = Vec3d.fromPolar(user.getRotationClient().add(spread));
         Box box = user.getBoundingBox().stretch(rayDirection.multiply(maxDistance)).expand(1d, 1d, 1d);
-        Set<Integer> entityBlacklist = new IntOpenHashSet(3);
+        Set<Integer> entityBlacklist = new IntOpenHashSet(4);
+
+        if (user.getVehicle() != null) {
+            entityBlacklist.add(user.getVehicle().getId());
+        }
 
         for (; penetratingLevel >= 0;) {
             Vec3d rayEnd = rayStart.add(rayDirection.multiply(maxDistance));
             Vec3d hitOffset = null;
 
             BlockHitResult blockHit = user.getWorld().raycast(new RaycastContext(rayStart, rayEnd, ShapeType.COLLIDER, FluidHandling.NONE, user));
-            
+
             double maxEntityDistance = blockHit.getPos().subtract(rayStart).lengthSquared();
 
             EntityHitResult entityHit = GunUtils.raytraceForEntites(user, rayDirection, maxEntityDistance, entityBlacklist);
 
-            if (GunUtils.processBulletImpact(user, entityHit, headshotMultiplier)) {
+            if (GunUtils.processBulletImpact(user, entityHit, strongHeadshot)) {
                 hitOffset = entityHit.getPos().subtract(rayStart.add(rayDirection));
                 entityBlacklist.add(entityHit.getEntity().getId());
             } else {
-                if (GunUtils.processBulletImpact(user, blockHit, headshotMultiplier)) {
+                if (GunUtils.processBulletImpact(user, blockHit, strongHeadshot)) {
                     hitOffset = blockHit.getPos().subtract(rayStart.add(rayDirection));
                 }
             }
@@ -304,17 +317,14 @@ public class GunUtils {
         return null;
     }
 
-    public static float getHeadshotDamageMultiplier(ItemStack stack) {
-        if (stack.getItem() instanceof RevolverItem || EnchantmentHelper.getLevel(EnchantmentReg.SKULL_CRUSHER, stack) > 0) {
-            return MConfig.strongHeadshotMultiplier.get();
-        }
-        return MConfig.headshotMultiplier.get();
+    public static boolean isStrongHeadshot(ItemStack stack) {
+        return (stack.getItem() instanceof RevolverItem || EnchantmentHelper.getLevel(EnchantmentReg.SKULL_CRUSHER, stack) > 0);
     }
 
     public static double getRecoil(PlayerEntity player, ItemStack stack) {
         double recoil = player.getAttributeValue(AttributeReg.RECOIL);
             
-        recoil *= 1 - Math.min(EnchantmentHelper.getLevel(EnchantmentReg.STEADY_HANDS, stack) * 0.125d, 1.0d);
+        recoil *= 1 - Math.min(EnchantmentHelper.getLevel(EnchantmentReg.STEADY_HANDS, stack) * 0.1d, 1.0d);
         
         if (player.isInSneakingPose()) {
             recoil *= MConfig.sneakingRecoilMultiplier.get();
